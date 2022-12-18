@@ -1,5 +1,3 @@
-// deno-lint-ignore-file
-// deno-lint-ignore-file
 /**
  * Copyright 2017 Google Inc. All rights reserved.
  *
@@ -15,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// deno-lint-ignore-file
 import { Product } from "../../vendor/puppeteer-core/puppeteer/common/Product.js";
 import { debug } from "../../vendor/puppeteer-core/puppeteer/common/Debug.js";
 import { assert } from "../../vendor/puppeteer-core/puppeteer/util/assert.js";
@@ -488,6 +486,7 @@ async function extractTar(tarPath: string, folderPath: string): Promise<void> {
   });
   const tmp = await Deno.makeTempFile();
   const file = await Deno.create(tmp);
+  // @ts-ignore
   await Deno.copy(bzcat.stdout, file);
   assert((await bzcat.status()).success, "failed bzcat");
   bzcat.close();

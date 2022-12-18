@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Copyright 2017 Google Inc. All rights reserved.
  *
@@ -13,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 // deno-lint-ignore-file
 
 import { Protocol } from "../../vendor/devtools-protocol/types/protocol.d.ts";
@@ -824,8 +826,10 @@ export declare class Page extends EventEmitter {
   $eval<
     Selector extends string,
     Params extends unknown[],
+    // deno-lint-ignore
     Func extends EvaluateFunc<[
       ElementHandle<NodeFor<Selector>>,
+      // deno-lint-ignore
       ...Params,
     ]> = EvaluateFunc<[ElementHandle<NodeFor<Selector>>, ...Params]>,
   >(
@@ -898,8 +902,10 @@ export declare class Page extends EventEmitter {
   $$eval<
     Selector extends string,
     Params extends unknown[],
+    // deno-lint-ignore
     Func extends EvaluateFunc<[
       Array<NodeFor<Selector>>,
+      // deno-lint-ignore
       ...Params,
     ]> = EvaluateFunc<[Array<NodeFor<Selector>>, ...Params]>,
   >(

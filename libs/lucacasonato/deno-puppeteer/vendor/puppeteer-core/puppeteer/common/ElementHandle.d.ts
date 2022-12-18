@@ -1,3 +1,4 @@
+// @ts-nocheck
 // deno-lint-ignore-file
 import { Protocol } from "../../vendor/devtools-protocol/types/protocol.d.ts";
 import { CDPSession } from "./Connection.js";
@@ -50,6 +51,7 @@ import { KeyInput } from "./USKeyboardLayout.js";
  *
  * @public
  */
+
 export declare class ElementHandle<ElementType extends any = any>
   extends JSHandle<ElementType> {
   #private;
@@ -113,13 +115,15 @@ export declare class ElementHandle<ElementType extends any = any>
   $eval<
     Selector extends string,
     Params extends unknown[],
+    // deno-lint-ignore
     Func extends EvaluateFunc<[
       ElementHandle<NodeFor<Selector>>,
-      ...Params,
+      ...Params
     ]> = EvaluateFunc<[ElementHandle<NodeFor<Selector>>, ...Params]>,
   >(
     selector: Selector,
     pageFunction: Func | string,
+    // deno-lint-ignore
     ...args: Params
   ): Promise<Awaited<ReturnType<Func>>>;
   /**
@@ -158,13 +162,16 @@ export declare class ElementHandle<ElementType extends any = any>
   $$eval<
     Selector extends string,
     Params extends unknown[],
+    // deno-lint-ignore
     Func extends EvaluateFunc<[
       Array<NodeFor<Selector>>,
+      // deno-lint-ignore
       ...Params,
     ]> = EvaluateFunc<[Array<NodeFor<Selector>>, ...Params]>,
   >(
     selector: Selector,
     pageFunction: Func | string,
+    // deno-lint-ignore
     ...args: Params
   ): Promise<Awaited<ReturnType<Func>>>;
   /**

@@ -10,8 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      
+      - name: Install deno
+        uses: denolib/setup-deno@v2
         with:
-          fetch-depth: 0
+          deno-version: "v1.0.0"
+
+      - name: Setup Google Chrome
+        uses: browser-actions/setup-chrome@latest
+
+      - uses: actions/checkout@v3
+
+      - name: Run script
+        run: |
+          chmod +x ./bin/run
+          ./bin/run --no-interaction --browser="chrome" --headless="true" --executable="metacritic"
 
       - name: Check if branch exists
         id: check_branch
@@ -31,19 +44,6 @@ jobs:
           git checkout -b data/metacritic
           git ls-files | xargs git rm --cached -r --ignore-unmatch --quiet --force --ignore-errors
           git push origin data/metacritic
-
-      - name: Install deno
-        uses: denolib/setup-deno@v2
-        with:
-          deno-version: "v1.0.0"
-
-      - name: Setup Google Chrome
-        uses: browser-actions/setup-chrome@latest
-
-      - name: Run script
-        run: |
-          chmod +x ./bin/run
-          ./bin/run --no-interaction --browser="chrome" --headless="true" --executable="metacritic"
 
       - name: Commit
         run: |

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Copyright 2018 Google Inc. All rights reserved.
  *
@@ -95,6 +96,7 @@ export declare class WebWorker extends EventEmitter {
    * @param args - Arguments to pass to `pageFunction`.
    * @returns Promise which resolves to the return value of `pageFunction`.
    */
+  // deno-lint-ignore
   evaluate<
     Params extends unknown[],
     Func extends EvaluateFunc<Params> = EvaluateFunc<Params>,
@@ -114,6 +116,7 @@ export declare class WebWorker extends EventEmitter {
    * @param args - Arguments to pass to `pageFunction`.
    * @returns Promise which resolves to the return value of `pageFunction`.
    */
+  // deno-lint-ignore
   evaluateHandle<
     Params extends unknown[],
     Func extends EvaluateFunc<Params> = EvaluateFunc<Params>,

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Copyright 2019 Google Inc. All rights reserved.
  *
@@ -100,8 +101,10 @@ export declare class JSHandle<T = unknown> {
    */
   evaluate<
     Params extends unknown[],
+    // deno-lint-ignore
     Func extends EvaluateFunc<[this, ...Params]> = EvaluateFunc<[
       this,
+      // deno-lint-ignore
       ...Params,
     ]>,
   >(
@@ -113,14 +116,18 @@ export declare class JSHandle<T = unknown> {
    *
    * @see {@link ExecutionContext.evaluateHandle} for more details.
    */
+  // deno-lint-ignore
   evaluateHandle<
     Params extends unknown[],
+    // deno-lint-ignore
     Func extends EvaluateFunc<[this, ...Params]> = EvaluateFunc<[
       this,
+      // deno-lint-ignore
       ...Params,
     ]>,
   >(
     pageFunction: Func | string,
+    // deno-lint-ignore
     ...args: Params
   ): Promise<HandleFor<Awaited<ReturnType<Func>>>>;
   /**

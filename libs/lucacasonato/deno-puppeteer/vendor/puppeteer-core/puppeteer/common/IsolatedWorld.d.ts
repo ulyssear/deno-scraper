@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Copyright 2019 Google Inc. All rights reserved.
  *
@@ -130,8 +131,10 @@ export declare class IsolatedWorld {
   $eval<
     Selector extends string,
     Params extends unknown[],
+    // deno-lint-ignore
     Func extends EvaluateFunc<[
       ElementHandle<NodeFor<Selector>>,
+      // deno-lint-ignore
       ...Params,
     ]> = EvaluateFunc<[ElementHandle<NodeFor<Selector>>, ...Params]>,
   >(
@@ -142,8 +145,10 @@ export declare class IsolatedWorld {
   $$eval<
     Selector extends string,
     Params extends unknown[],
+    // deno-lint-ignore
     Func extends EvaluateFunc<[
       Array<NodeFor<Selector>>,
+      // deno-lint-ignore
       ...Params,
     ]> = EvaluateFunc<[Array<NodeFor<Selector>>, ...Params]>,
   >(

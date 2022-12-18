@@ -23,7 +23,8 @@ export declare class BrowserWebSocketTransport implements ConnectionTransport {
   static create(url: string): Promise<BrowserWebSocketTransport>;
   onmessage?: (message: string) => void;
   onclose?: () => void;
-  constructor(ws: WebSocket);
+  // deno-lint-ignore
+  constructor(ws: any);
   send(message: string): void;
   close(): Promise<void>;
 }

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Copyright 2017 Google Inc. All rights reserved.
  *
@@ -123,11 +124,13 @@ export declare class ExecutionContext {
    * a vanilla object containing the serializable properties of the result is
    * returned.
    */
+  // deno-lint-ignore
   evaluate<
     Params extends unknown[],
     Func extends EvaluateFunc<Params> = EvaluateFunc<Params>,
   >(
     pageFunction: Func | string,
+    // deno-lint-ignore
     ...args: Params
   ): Promise<Awaited<ReturnType<Func>>>;
   /**
@@ -179,11 +182,13 @@ export declare class ExecutionContext {
    * function. If the result is a `Node`, then this will return an
    * {@link ElementHandle | element handle}.
    */
+  // deno-lint-ignore
   evaluateHandle<
     Params extends unknown[],
     Func extends EvaluateFunc<Params> = EvaluateFunc<Params>,
   >(
     pageFunction: Func | string,
+    // deno-lint-ignore
     ...args: Params
   ): Promise<HandleFor<Awaited<ReturnType<Func>>>>;
   /**

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Scraper from "../index.ts";
 import { $$eval, $eval } from "../helper.ts";
 

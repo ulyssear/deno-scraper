@@ -1,3 +1,4 @@
+// @ts-nocheck
 import puppeteer from "./libs/lucacasonato/deno-puppeteer/src/mod.ts";
 
 let HEADLESS: boolean,

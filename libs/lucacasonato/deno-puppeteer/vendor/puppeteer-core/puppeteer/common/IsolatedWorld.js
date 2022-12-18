@@ -184,10 +184,10 @@ export class IsolatedWorld {
       }
       function deliverResult(name, seq, result) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore Code is evaluated in a different context.
+        // deno-lint-ignore Code is evaluated in a different context.
         globalThis[name].callbacks.get(seq).resolve(result);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore Code is evaluated in a different context.
+        // deno-lint-ignore Code is evaluated in a different context.
         globalThis[name].callbacks.delete(seq);
       }
     });
@@ -564,7 +564,7 @@ export class IsolatedWorld {
         await context._client.send("Runtime.addBinding", {
           name,
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore The protocol definition is not up to date.
+          // deno-lint-ignore The protocol definition is not up to date.
           executionContextName: context._contextName,
         });
         await context.evaluate(expression);

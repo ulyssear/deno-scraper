@@ -67,7 +67,7 @@ export class JSZip {
   // we should assert the type (we want it to be a _JSZip) ?
   constructor(z?: any) {
     if (z === undefined) {
-      // @ts-ignores
+      // deno-lint-ignores
       this._z = new _JSZip();
     } else {
       this._z = z;
@@ -81,7 +81,7 @@ export class JSZip {
    * @return New JSZip object with the given folder as root or null
    */
   folder(name: string): JSZip {
-    // @ts-ignores
+    // deno-lint-ignores
     const f = this._z.folder(name);
     return new JSZip(f);
   }
@@ -93,7 +93,7 @@ export class JSZip {
    * @return File matching path, null if no file found
    */
   file(path: string): JSZipObject {
-    // @ts-ignores
+    // deno-lint-ignores
     const f = this._z.file(path);
     return f as JSZipObject;
   }
@@ -111,13 +111,13 @@ export class JSZip {
     content?: string | Uint8Array,
     options?: JSZipFileOptions,
   ): JSZipObject {
-    // @ts-ignores
+    // deno-lint-ignores
     const f = this._z.file(path, content, options);
     return f as JSZipObject;
   }
 
   files(): { [key: string]: JSZipObject } {
-    // @ts-ignores
+    // deno-lint-ignores
     const fs = this._z.files;
     return fs;
   }
@@ -132,7 +132,7 @@ export class JSZip {
   async generateAsync<T extends keyof OutputByType>(
     options?: JSZipGeneratorOptions<T>,
   ): Promise<OutputByType[T]> {
-    // @ts-ignores
+    // deno-lint-ignores
     return await this._z.generateAsync(options);
   }
 
@@ -145,7 +145,7 @@ export class JSZip {
   filter(
     predicate: (relativePath: string, file: JSZipObject) => boolean,
   ): JSZipObject[] {
-    // @ts-ignores
+    // deno-lint-ignores
     return this._z.filter(predicate);
   }
 
@@ -156,7 +156,7 @@ export class JSZip {
    * @return Returns the JSZip instance
    */
   remove(path: string): JSZip {
-    // @ts-ignores
+    // deno-lint-ignores
     return this._z.remove(path);
   }
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 const args = Deno.args.reduce((
   acc: { [key: string]: string },
   arg: string,

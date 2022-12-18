@@ -127,8 +127,8 @@ export class BrowserRunner {
     // is invalid), then the process does not get a pid assigned. A call to
     // `proc.kill` would error, as the `pid` to-be-killed can not be found.
     if (this.proc && this.proc.pid && !this._closed) {
-      try {
-        this.proc.kill("SIGKILL");
+      try { 
+        this.proc.kill(Deno.Signal.SIGKILL)
       } catch (error) {
         throw new Error(
           `${PROCESS_ERROR_EXPLANATION}\nError cause: ${error.stack}`,

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // deno-lint-ignore-file
 import { Protocol } from "../../vendor/devtools-protocol/types/protocol.d.ts";
 import { CDPSession } from "./Connection.js";
@@ -335,9 +336,11 @@ export declare class Frame {
   $eval<
     Selector extends string,
     Params extends unknown[],
+    // deno-lint-ignore
     Func extends EvaluateFunc<[
       ElementHandle<NodeFor<Selector>>,
-      ...Params,
+      // deno-lint-ignore
+      ...Params,  
     ]> = EvaluateFunc<[ElementHandle<NodeFor<Selector>>, ...Params]>,
   >(
     selector: Selector,

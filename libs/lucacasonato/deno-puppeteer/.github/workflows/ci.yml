@@ -1,0 +1,57 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: test-${{ matrix.os }}-${{ matrix.deno }}
+    runs-on: ${{ matrix.os }} # runs a test on Ubuntu, Windows and macOS
+
+    strategy:
+      matrix:
+        deno: ["v1.x", "canary"]
+        os: [windows-latest, ubuntu-latest, macos-latest]
+      fail-fast: false
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@main
+        with:
+          deno-version: ${{ matrix.deno }}
+
+      - name: Formatting
+        if: contains(runner.os, 'ubuntu')
+        run: deno fmt --check
+
+      - name: Cache Dependencies
+        run: deno cache --unstable mod.ts
+
+      - name: Install Chromium
+        run: deno run -A --unstable install.ts
+
+      - name: Run tests
+        run: deno test -A --unstable tests.ts
+
+      - name: Run tests with lib.dom typings
+        run: deno test -A --unstable --config fixtures/dom-tsconfig.json tests.ts
+
+  docker:
+    name: docker
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Build image
+        run: docker build -t denopuppeteer .
+
+      - name: Run container
+        run: docker run -i denopuppeteer

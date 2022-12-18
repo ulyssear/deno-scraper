@@ -1,0 +1,55 @@
+name: data-metacritic
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 1 * *' # Every first day of the month
+
+jobs:
+  data-metacritic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Check if branch exists
+        id: check_branch
+        run: |
+          git ls-remote --heads origin data/metacritic > /dev/null 2>&1
+          if [ $? -eq 0 ]; then
+            echo "::set-output name=branch_exists::true"
+          else
+            echo "::set-output name=branch_exists::false"
+          fi
+
+      - name: Create branch
+        if: steps.check_branch.outputs.branch_exists == 'false'
+        run: |
+          git config --local user.email "noreply@arnaud.tech"
+          git config --local user.name "Github Actions"
+          git checkout -b data/metacritic
+          git ls-files | xargs git rm --cached -r --ignore-unmatch --quiet --force --ignore-errors
+          git push origin data/metacritic
+
+      - name: Install deno
+        uses: denolib/setup-deno@v2
+        with:
+          deno-version: "v1.0.0"
+
+      - name: Setup Google Chrome
+        uses: browser-actions/setup-chrome@latest
+
+      - name: Run script
+        run: |
+          chmod +x ./bin/run
+          ./bin/run --no-interaction --browser="chrome" --headless="true" --executable="metacritic"
+
+      - name: Commit
+        run: |
+          git add data
+          git commit -m "Update data/metacritic"
+
+      - name: Push
+        if: steps.check_branch.outputs.branch_exists == 'true'
+        run: git push --force origin data/metacritic

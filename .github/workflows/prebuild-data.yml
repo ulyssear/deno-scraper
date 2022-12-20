@@ -14,18 +14,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 16
 
-      - name: Install dependencies
+      - name: Install
         run: |
-          cd libs/puppeteer
-          npm install
+          chmod +x ./bin/install
+          ./bin/install  
           
       - name: Configure git user
         run: |
@@ -51,6 +49,6 @@ jobs:
       - name: Push
         run: |
           git checkout generic/data
-          git add libs/puppeteer
-          git commit -m "Update libs/puppeteer"
+          git add libs
+          git commit -m "Update libs"
           git push origin generic/data

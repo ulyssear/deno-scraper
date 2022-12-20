@@ -41,6 +41,5 @@ jobs:
       - name: Push
         run: |
           git checkout -b generic/data
-          git add libs bin
-          git commit -m "Update libs"
+          git commit -am "Update libs"
           git push -f origin generic/data

@@ -1,0 +1,54 @@
+
+name: prebuild-data
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  prebuild-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Install dependencies
+        run: |
+          cd libs/puppeteer
+          npm install
+          
+      - name: Configure git user
+        run: |
+          git config --local user.email "noreply@arnaud.tech"
+          git config --local user.name "Github Actions"
+
+      - name: Check if branch exists
+        id: check_branch
+        run: |
+          git ls-remote --heads origin generic/data > /dev/null 2>&1
+          if [ $? -eq 0 ]; then
+            echo "::set-output name=branch_exists::true"
+          else
+            echo "::set-output name=branch_exists::false"
+          fi
+
+      - name: Create branch
+        if: steps.check_branch.outputs.branch_exists == 'false'
+        run: |
+          git branch generic/data
+
+
+      - name: Push
+        run: |
+          git checkout generic/data
+          git add libs/puppeteer
+          git commit -m "Update libs/puppeteer"
+          git push origin generic/data

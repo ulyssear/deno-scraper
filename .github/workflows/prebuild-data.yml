@@ -40,15 +40,9 @@ jobs:
             echo "::set-output name=branch_exists::false"
           fi
 
-      - name: Create branch
-        if: steps.check_branch.outputs.branch_exists == 'false'
-        run: |
-          git branch generic/data
-
-
       - name: Push
         run: |
-          git switch generic/data
+          git checkout -b generic/data
           git add libs
           git commit -m "Update libs"
           git push origin generic/data

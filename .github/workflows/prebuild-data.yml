@@ -15,6 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Create branch
+        run: |
+          git checkout -b generic/data
+
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
@@ -28,18 +32,7 @@ jobs:
           git config --local user.email "noreply@arnaud.tech"
           git config --local user.name "Github Actions"
 
-      - name: Check if branch exists
-        id: check_branch
-        run: |
-          git ls-remote --heads origin generic/data > /dev/null 2>&1
-          if [ $? -eq 0 ]; then
-            echo "::set-output name=branch_exists::true"
-          else
-            echo "::set-output name=branch_exists::false"
-          fi
-
       - name: Push
         run: |
-          git checkout -b generic/data
           git commit -am "Update libs"
           git push -f origin generic/data

@@ -34,5 +34,6 @@ jobs:
 
       - name: Push
         run: |
-          git commit -am "Update libs"
+          git add node_modules package-lock.json
+          git commit -m "Update libs"
           git push -f origin generic/data

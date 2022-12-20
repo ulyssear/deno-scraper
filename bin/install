@@ -1,9 +1,0 @@
-wget https://github.com/puppeteer/puppeteer/archive/refs/tags/puppeteer-core-v19.4.1.tar.gz -P libs
-if [ ! -d "libs/puppeteer" ]; then
-  mkdir libs/puppeteer
-fi
-tar -xvf libs/puppeteer-core-v19.4.1.tar.gz -C libs/puppeteer
-rm libs/puppeteer-core-v19.4.1.tar.gz
-cd libs/puppeteer/puppeteer-puppeteer-core-v19.4.1
-sed -i 's/"husky install"/""/g' package.json
-npm install --silent

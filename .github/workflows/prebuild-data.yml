@@ -21,9 +21,7 @@ jobs:
           node-version: 16
 
       - name: Install
-        run: |
-          chmod +x ./bin/install
-          ./bin/install  
+        run: npm install
           
       - name: Configure git user
         run: |

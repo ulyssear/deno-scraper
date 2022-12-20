@@ -467,7 +467,11 @@ class Task {
         });
         // break;
       } catch (err) {
-        error(err);
+        error(err, {
+          bot_name: this.bot_name,
+          file: this.file,
+          url: this.url,
+        });
         // console.log(`[INFO] [${new Date().toISOString()}] [${this.bot_name}] [${this.file}] [${this.url}] Retrying in ${timeout}ms...`);
         // await new Promise((resolve) => setTimeout(resolve, timeout));
       }

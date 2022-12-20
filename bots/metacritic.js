@@ -1,6 +1,5 @@
-// @ts-nocheck
-import Scraper from "../index.ts";
-import { $$eval, $eval } from "../helper.ts";
+import Scraper from "../index.js";
+import { $$eval, $eval } from "../helper.js";
 
 const URLS_CATEGORIES = {
   nintendo: {
@@ -53,25 +52,26 @@ const URLS_CATEGORIES = {
     pc:
       "https://www.metacritic.com/browse/games/score/metascore/all/pc/filtered",
   },
-} as any;
+};
 
-const args = Deno.args.reduce((
-  acc: { [key: string]: string | number | boolean | undefined },
-  arg: string,
-) => {
-  const [key, value] = arg.split("=");
-  acc[key.substring(2) as string] = value as string;
-  return acc;
-}, {
-  bot_name: "metacritic",
-}) as any;
+const args = Object.assign(
+  {
+    bot_name: "metacritic",
+  },
+  process.argv.reduce((acc, arg) => {
+    const [key, value] = arg.split("=");
+    acc[key.substring(2)] = value;
+    return acc;
+  }, {}),
+);
+    
 
-const scraper = new Scraper(args) as any;
+const scraper = new Scraper(args);
 
 await scraper.chooseExecutable();
 
 for (const [company, urls] of Object.entries(URLS_CATEGORIES)) {
-  for (const [platform, url] of Object.entries(urls as any)) {
+  for (const [platform, url] of Object.entries(urls)) {
     scraper.addTask({
       file: `${encodeURIComponent(company)}/${encodeURIComponent(platform)}`,
       save_file: false,
@@ -88,40 +88,40 @@ await scraper.run({
 });
 
 async function callableCategories(
-  page: any,
-  browser: any,
-  params = {} as any,
+  page,
+  browser,
+  params = {},
 ) {
-  let company: string = "";
+  let company = "";
   if (params.company) {
     company = params.company;
   }
   const games = await $$eval(
     page,
     ".clamp-list tbody tr:not(.spacer)",
-    (elements: any, params = {} as any) => {
-      let company: string = "";
+    (elements, params = {}) => {
+      let company = "";
       if (params.company) {
         company = params.company;
       }
-      let games = [] as Game[];
-      for (let i = 0 as number; i < elements.length; i++) {
-        const element = elements[i] as any;
-        const title = element.querySelector("a.title h3").innerText as string;
+      let games = [];
+      for (let i = 0; i < elements.length; i++) {
+        const element = elements[i];
+        const title = element.querySelector("a.title h3").innerText;
         const cover = element.querySelector("td.clamp-image-wrap img")
-          .src as string;
+          .src;
         const metascore = element.querySelector("div.metascore_w")
-          .innerText as string;
+          .innerText;
         const userscore = element.querySelector("div.metascore_w.user")
-          .innerText as string;
+          .innerText;
         const release_date = element.querySelector(
           ".clamp-details .platform + span",
-        ).innerText as string;
+        ).innerText;
         const description = element.querySelector(".summary")
-          .innerText as string;
-        const url = element.querySelector("a.title").href as string;
+          .innerText;
+        const url = element.querySelector("a.title").href;
         const platform = element.querySelector(".platform .data")
-          .innerText as string;
+          .innerText;
 
         const game = {
           title,
@@ -133,7 +133,7 @@ async function callableCategories(
           metascore,
           userscore,
           company,
-        } as Game;
+        };
 
         games.push(game);
       }
@@ -141,10 +141,10 @@ async function callableCategories(
       return games;
     },
     { company },
-  ) as Game[];
+  );
 
-  for (let i = 0 as number; i < games.length; i++) {
-    const game = games[i] as Game;
+  for (let i = 0; i < games.length; i++) {
+    const game = games[i];
     const { title, url, platform, company } = game;
     scraper.addTask({
       file: `${encodeURIComponent(company)}/${encodeURIComponent(platform)}/${
@@ -165,71 +165,46 @@ async function callableCategories(
   return games;
 }
 
-interface Game {
-  title: string;
-  description: string;
-  cover: string;
-  metascore: string;
-  userscore: string;
-  release_date: string;
-  url: string;
-  platform: string;
-  company: string;
-  publisher: string;
-  summary: string;
-  others_platforms: string;
-  videos: string;
-  mustplay: boolean;
-  user_score: string;
-  critic_score: string;
-  genres: string;
-  developer: string;
-  players: string;
-  rating_esrb: string;
-  cheats: string;
-  more: string;
-}
-
 async function callableGame(
-  page: any,
-  browser: any,
+  page,
+  browser,
 ) {
-  const game_details = await $eval(page, ".left", (element: any) => {
-    const game_details = {} as Game;
-    const title = element.querySelector("h1").innerText as string;
+  const game_details = await $eval(page, ".left", (element) => {
+    const game_details = {};
+    const title = element.querySelector("h1").innerText;
     const publisher = element.querySelector(".summary_detail.publisher .data")
-      ?.innerText.trim() as string;
+      ?.innerText.trim();
     const summary = element.querySelector(".summary_detail.product_summary")
-      ?.innerText.trim() as string;
+      ?.innerText.trim();
     const release_date = element.querySelector(
       ".summary_detail.release_data .data",
-    )?.innerText.trim() as string;
+    )?.innerText.trim();
     const others_platforms = element.querySelector(
       ".summary_detail.product_platforms .data",
-    )?.innerText.trim() as string;
-    const videos = element.querySelector("video")?.src as string;
-    const cover = element.querySelector(".product_image img")?.src as string;
+    )?.innerText.trim();
+    const videos = element.querySelector("video")?.src;
+    const cover = element.querySelector(".product_image img")?.src;
     const mustplay = element.querySelector(".must_play")
       ? true
-      : false as boolean;
+      : false;
     const metascore = element.querySelector(".metascore_w")
-      ?.innerText as string;
+      ?.innerText;
     const user_score = element.querySelector(".metascore_w user")
-      ?.innerText as string;
+      ?.innerText;
     const developer = element.querySelector(".summary_detail.developer .data")
-      ?.innerText.trim() as string;
+      ?.innerText.trim();
     const genre = element.querySelector(".summary_detail.product_genre .data")
-      ?.innerText.trim() as string;
+      ?.innerText.trim();
     const players = element.querySelector(
       ".summary_detail.product_players .data",
-    )?.innerText.trim() as string;
+    )?.innerText.trim();
     const rating_esrb = element.querySelector(
       ".summary_detail.product_rating .data",
-    )?.innerText.trim() as string;
+    )?.innerText.trim();
     const cheats = element.querySelector(".summary_detail.product_cheats a")
-      ?.href.trim() as string;
+      ?.href.trim();
     const more = element.querySelector(".summary_detail.product_more a")?.href
-      .trim() as string;
+      .trim();
 
     game_details.title = title;
     game_details.publisher = publisher;
@@ -249,7 +224,7 @@ async function callableGame(
     game_details.more = more;
 
     return game_details;
-  }) as any;
+  });
   await browser.closePage(page);
   return game_details;
 }

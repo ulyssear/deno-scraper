@@ -1,23 +1,33 @@
-// @ts-nocheck
-import puppeteer from "./libs/lucacasonato/deno-puppeteer/src/mod.ts";
+import os from "os";
+import puppeteer from "puppeteer";
 
-let HEADLESS: boolean,
-  EXECUTABLE_PATH: string,
-  ROOT_PATH: string,
-  DATA_DIRECTORY: string;
+let HEADLESS,
+  EXECUTABLE_PATH,
+  ROOT_PATH,
+  DATA_DIRECTORY;
+
+const OS = (() => {
+  const platform = os.platform();
+  const platforms = {
+    linux: "linux",
+    win32: "windows",
+    darwin: "macos",
+  };
+  return platforms[platform] || "linux";
+})();
 
 class EXECUTABLES_DICT {
-  static LINUX: { [index: string]: string } = {
+  static LINUX = {
     FIREFOX: "/usr/bin/firefox",
     CHROME: "/usr/bin/chromium-browser",
     EDGE: "/usr/bin/msedge",
   };
-  static WINDOWS: { [index: string]: string } = {
+  static WINDOWS = {
     FIREFOX: "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
     CHROME: "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
     EDGE: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
   };
-  static MACOS: { [index: string]: string } = {
+  static MACOS = {
     FIREFOX: "/Applications/Firefox.app/Contents/MacOS/firefox",
     CHROME: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     EDGE: "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
@@ -25,16 +35,16 @@ class EXECUTABLES_DICT {
 }
 
 class ScraperInterface {
-  bot_name: string;
-  date: string;
-  root_path: string;
-  data_directory: string;
-  executable_path: string;
-  os: string;
-  executable: string;
-  headless: boolean;
+  bot_name;
+  date;
+  root_path;
+  data_directory;
+  executable_path;
+  os;
+  executable;
+  headless;
 
-  instance: Scraper;
+  instance;
 
   constructor({
     bot_name,
@@ -45,10 +55,10 @@ class ScraperInterface {
     root_path = ".",
     data_directory = "data",
     executable_path = "",
-    os = Deno.build.os,
+    os = OS,
     executable = "chrome",
     headless = "true",
-  }: { [index: string]: any }) {
+  }) {
     this.bot_name = bot_name;
     this.date = date;
     this.root_path = root_path;
@@ -95,10 +105,10 @@ class ScraperInterface {
       return this;
     }
 
-    const executable_path: string =
-      (EXECUTABLES_DICT as any)[this.os.toUpperCase() as string][
-        this.executable.toUpperCase() as string
-      ] || "" as string;
+    const executable_path =
+      (EXECUTABLES_DICT)[this.os.toUpperCase()][
+        this.executable.toUpperCase()
+      ] || "";
 
     if (!executable_path) {
       throw new Error(
@@ -112,14 +122,14 @@ class ScraperInterface {
     return this;
   }
 
-  addTask(task: any) {
+  addTask(task) {
     return this.instance.addTask(task);
   }
 }
 
 class BrowserInterface {
-  _browser: any;
-  pages: any;
+  _browser;
+  pages;
 
   constructor() {
     this._browser = null;
@@ -155,7 +165,7 @@ class BrowserInterface {
     return page;
   }
 
-  async openPage(url: string) {
+  async openPage(url) {
     const page = await this.newPage();
     for (let i = 0; i < 3; i++) {
       try {
@@ -170,13 +180,13 @@ class BrowserInterface {
     return page;
   }
 
-  async closePage(page: any) {
+  async closePage(page) {
     await page.close();
-    this.pages = this.pages.filter((p: any) => p !== page);
+    this.pages = this.pages.filter((p) => p !== page);
   }
 
   async closeAllPages() {
-    await Promise.all(this.pages.map((page: any) => page.close()));
+    await Promise.all(this.pages.map((page) => page.close()));
     this.pages = [];
   }
 
@@ -190,7 +200,7 @@ class BrowserInterface {
     await this.start();
   }
 
-  async restartPage(page: any) {
+  async restartPage(page) {
     await this.closePage(page);
     return this.newPage();
   }
@@ -239,19 +249,19 @@ class Scraper {
     10000,
   ];
 
-  tasks: any = [];
-  bot_name: string;
-  date: string;
+  tasks = [];
+  bot_name;
+  date;
 
-  root_path: string;
-  data_directory: string;
-  executable_path: string;
+  root_path;
+  data_directory;
+  executable_path;
 
-  os: string;
-  executable: string;
-  headless: boolean;
+  os;
+  executable;
+  headless;
 
-  browser_interface: BrowserInterface;
+  browser_interface;
 
   /**
    * Create a new instance of Scraper
@@ -275,10 +285,10 @@ class Scraper {
     root_path = ".",
     data_directory = "data",
     executable_path = "",
-    os = Deno.build.os,
+    os = OS,
     executable = "chrome",
     headless = true,
-  }: { [key: string]: any }) {
+  }) {
     this.bot_name = bot_name;
     this.date = date;
     this.root_path = root_path;
@@ -308,7 +318,7 @@ class Scraper {
    *  },
    * });
    */
-  addTask(task: any) {
+  addTask(task) {
     if (typeof task === "function") {
       this.tasks.push(task);
       return this;
@@ -341,7 +351,7 @@ class Scraper {
     mode = "parallel",
     concurrency = Scraper.CHUNK_SIZE,
     wait = 1500,
-  }: { [key: string]: any } = {}) {
+  } = {}) {
     const browser = await this.browser_interface.browser();
     const tasks = chunk(this.tasks, concurrency);
 
@@ -357,7 +367,7 @@ class Scraper {
         file: "",
         url: "",
       });
-      this.tasks = this.tasks.filter((task: any) => !_chunk.includes(task));
+      this.tasks = this.tasks.filter((task) => !_chunk.includes(task));
 
       if ("sequential" === mode) {
         for (const task of _chunk) {
@@ -372,7 +382,7 @@ class Scraper {
       }
 
       if ("parallel" === mode) {
-        await Promise.all(_chunk.map(async (task: any) => await task()));
+        await Promise.all(_chunk.map(async (task) => await task()));
         log(`Waiting ${wait}ms...`, {
           bot_name: this.bot_name,
           file: "",
@@ -399,15 +409,15 @@ class Scraper {
 }
 
 class Task {
-  bot_name: string;
-  date: string;
-  file: string;
-  url: string;
-  callable: any;
-  params: any;
-  save_file: boolean;
+  bot_name;
+  date;
+  file;
+  url;
+  callable;
+  params;
+  save_file;
 
-  browser_interface: BrowserInterface;
+  browser_interface;
 
   constructor({
     bot_name,
@@ -418,7 +428,7 @@ class Task {
     browser_interface,
     params = {},
     save_file = true,
-  }: { [key: string]: any }) {
+  }) {
     this.bot_name = bot_name;
     this.date = date;
     this.file = file;
@@ -499,15 +509,15 @@ class Task {
  * @returns - The chunked array
  */
 function chunk(
-  arr: any,
-  size: number,
+  arr,
+  size,
 ) {
-  let chunked_arr: any[] = [];
-  let index: number = 0;
+  let chunked_arr = [];
+  let index = 0;
 
   while (index < arr.length) {
     const chunk = arr.slice(index, size + index);
-    chunked_arr.push(chunk as never);
+    chunked_arr.push(chunk);
     index += size;
   }
 
@@ -515,21 +525,17 @@ function chunk(
 }
 
 function generic_log(
-  message: string,
+  message,
   type = "INFO",
   {
     bot_name,
     file,
     url,
-  } = {
-    bot_name: "",
-    file: "",
-    url: "",
-  },
+  }
 ) {
   const date = new Date().toISOString().replace(/T/, " ").replace(/\..+/, "");
 
-  const string = [] as string[];
+  const string = [];
   string.push(`[${type}]`);
   string.push(`[${date}]`);
   if (bot_name) string.push(`[${bot_name}]`);
@@ -540,31 +546,23 @@ function generic_log(
 }
 
 function log(
-  message: string,
+  message,
   {
     bot_name,
     file,
     url,
-  } = {
-    bot_name: "",
-    file: "",
-    url: "",
-  },
+  }
 ) {
   generic_log(message, "INFO", { bot_name, file, url });
 }
 
 function error(
-  message: string,
+  message,
   {
     bot_name,
     file,
     url,
-  } = {
-    bot_name: "",
-    file: "",
-    url: "",
-  },
+  }
 ) {
   generic_log(message, "ERROR", { bot_name, file, url });
 }

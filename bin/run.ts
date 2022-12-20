@@ -96,15 +96,8 @@ function section_run({ executable, browser, headless }: {
   );
   const process = Deno.run({
     cmd: [
-      "deno",
-      "run",
-      "--unstable",
-      "--allow-net",
-      "--allow-read",
-      "--allow-write",
-      "--allow-env",
-      "--allow-run",
-      `bots/${executable}.ts`,
+      "node",
+      `bots/${executable}.js`,
       `--executable=${browser}`,
       `--headless=${headless}`,
     ],

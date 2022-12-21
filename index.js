@@ -1,5 +1,6 @@
 import os from "os";
 import puppeteer from "puppeteer";
+import fs from "fs";
 
 let HEADLESS,
   EXECUTABLE_PATH,
@@ -484,8 +485,8 @@ class Task {
 
       const directory = path.split("/").slice(0, -1).join("/");
 
-      await Deno.mkdir(directory, { recursive: true });
-      await Deno.writeTextFile(
+      await fs.mkdirSync(directory, { recursive: true });
+      await fs.writeFileSync(
         path,
         JSON.stringify({
           bot_name: this.bot_name,

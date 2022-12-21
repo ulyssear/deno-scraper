@@ -1,3 +1,0 @@
-[submodule "libs/puppeteer"]
-	path = libs/puppeteer
-	url = https://github.com/puppeteer/puppeteer.git

@@ -35,6 +35,9 @@ class EXECUTABLES_DICT {
   };
 }
 
+let request_index = -1;
+let request_index_start, request_index_end;
+
 class ScraperInterface {
   bot_name;
   date;
@@ -59,15 +62,17 @@ class ScraperInterface {
     os = OS,
     executable = "chrome",
     headless = "true",
+    index_start = 0,
+    index_end = -1,
   }) {
     this.bot_name = bot_name;
     this.date = date;
-    this.root_path = root_path;
-    this.data_directory = data_directory;
     this.executable_path = executable_path;
     this.os = os;
     this.executable = executable;
     this.headless = headless === "true";
+    this.request_index_start = index_start;
+    this.request_index_end = index_end;
 
     HEADLESS = this.headless;
     ROOT_PATH = this.root_path;
@@ -82,6 +87,8 @@ class ScraperInterface {
       os: this.os,
       executable: this.executable,
       headless: this.headless,
+      request_index_start: this.request_index_start,
+      request_index_end: this.request_index_end
     });
 
     this.instance = scraper;
@@ -289,6 +296,8 @@ class Scraper {
     os = OS,
     executable = "chrome",
     headless = true,
+    request_index_start = 0,
+    request_index_end = -1,
   }) {
     this.bot_name = bot_name;
     this.date = date;
@@ -298,6 +307,8 @@ class Scraper {
     this.os = os;
     this.executable = executable;
     this.headless = headless;
+    this.request_index_start = request_index_start;
+    this.request_index_end = request_index_end;
 
     this.browser_interface = new BrowserInterface();
   }
@@ -320,6 +331,8 @@ class Scraper {
    * });
    */
   addTask(task) {
+    request_index++;
+    
     if (typeof task === "function") {
       this.tasks.push(task);
       return this;
@@ -338,7 +351,16 @@ class Scraper {
       save_file,
     });
 
-    this.tasks.push(_task.run.bind(_task));
+    const final_callable = (_task) => {
+      _task.index = request_index;
+      return _task.run.bind(_task);
+    };
+
+    if (request_index < this.request_index_start || request_index > this.request_index_end) {
+      return this;
+    }
+
+    this.tasks.push(final_callable(_task));
 
     return this;
   }
@@ -383,7 +405,9 @@ class Scraper {
       }
 
       if ("parallel" === mode) {
-        await Promise.all(_chunk.map(async (task) => await task()));
+        await Promise.all(_chunk.map(async (task) => {
+          await task()
+        }));
         log(`Waiting ${wait}ms...`, {
           bot_name: this.bot_name,
           file: "",
@@ -417,6 +441,7 @@ class Task {
   callable;
   params;
   save_file;
+  index;
 
   browser_interface;
 
@@ -429,6 +454,7 @@ class Task {
     browser_interface,
     params = {},
     save_file = true,
+    index = -1,
   }) {
     this.bot_name = bot_name;
     this.date = date;
@@ -437,6 +463,7 @@ class Task {
     this.callable = callable;
     this.params = params;
     this.save_file = save_file;
+    this.index = index;
 
     if (!this.file.match(/\.json|\.txt|\.xml|\.csv$/)) {
       this.file += ".json";
@@ -456,29 +483,35 @@ class Task {
       url: this.url,
     });
 
-    if (this.url) {
+    if (this.url && this.index >= request_index_start && this.index <= (request_index_end > 0 ? request_index_end : request_index_start + 100000)) {
       const page = await this.browser_interface.openPage(this.url);
-      // for (const timeout of Scraper.TIMEOUTS) {
       try {
         data = await this.callable(page, this.browser_interface, this.params);
+        this.saveData(data);
         log("Saving data...", {
           bot_name: this.bot_name,
           file: this.file,
           url: this.url,
         });
-        // break;
       } catch (err) {
         error(err, {
           bot_name: this.bot_name,
           file: this.file,
           url: this.url,
         });
-        // console.log(`[INFO] [${new Date().toISOString()}] [${this.bot_name}] [${this.file}] [${this.url}] Retrying in ${timeout}ms...`);
-        // await new Promise((resolve) => setTimeout(resolve, timeout));
       }
-      // }
     }
 
+    log("Done!", {
+      bot_name: this.bot_name,
+      file: this.file,
+      url: this.url,
+    });
+
+    return data;
+  }
+
+  async saveData(data) {
     if (this.save_file) {
       const path =
         `${ROOT_PATH}/${DATA_DIRECTORY}/${this.bot_name}/${this.date}/${this.file}`;
@@ -497,13 +530,7 @@ class Task {
       );
     }
 
-    log("Done!", {
-      bot_name: this.bot_name,
-      file: this.file,
-      url: this.url,
-    });
-
-    return data;
+    return this;
   }
 }
 

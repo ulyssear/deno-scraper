@@ -39,8 +39,12 @@ function section_main_menu() {
     },
   ];
 
-  const choice = create_choice(options);
-  execute_choice(options, choice);
+  let choice = options.findIndex((option) => option.executable === args.executable) + 1;
+
+  if (!args.hasOwnProperty("executable")) {
+    choice = create_choice(options);
+    execute_choice(options, choice);
+  }
 
   section_browsers({
     executable: options[choice - 1].executable as string,
@@ -63,12 +67,16 @@ function section_browsers({ executable }: {
     },
   ];
 
-  const choice_browser = create_choice(options_browsers);
-  execute_choice(options_browsers, choice_browser);
+  let choice = options_browsers.findIndex((option) => option.name === args.browser) + 1;
+
+  if (!args.hasOwnProperty("browser")) {
+    choice = create_choice(options_browsers);
+    execute_choice(options_browsers, choice_browser);
+  }
 
   section_headless({
     executable,
-    browser: options_browsers[choice_browser - 1].name,
+    browser: args.browser ?? options_browsers[choice - 1].name,
   });
 }
 
@@ -77,11 +85,18 @@ function section_headless({ executable, browser }: {
   browser: string;
 }) {
   let headless;
-  while (!["y", "n"].includes(headless)) {
-    headless = prompt("Headless (y/n) :");
-  }
 
-  headless = headless === "y";
+  if (args.hasOwnProperty("headless")) {
+    headless = (args.headless ?? "true") === "true";
+  }
+  
+  if (headless === undefined) {
+    while (!["y", "n"].includes(headless)) {
+      headless = prompt("Headless (y/n) :")?.toLowerCase();
+    }
+
+    headless = headless === "y";
+  }
 
   section_run({ executable, browser, headless });
 }
@@ -94,14 +109,23 @@ function section_run({ executable, browser, headless }: {
   console.debug(
     `Running ${executable} with ${browser} and headless as ${headless}`,
   );
-  const process = Deno.run({
-    cmd: [
-      "node",
-      `bots/${executable}.js`,
-      `--executable=${browser}`,
-      `--headless=${headless}`,
-    ],
-  });
+
+  const cmd = [
+    "node",
+    `bots/${executable}.js`,
+    `--executable=${browser}`,
+    `--headless=${headless}`,
+  ];
+
+  if (args.hasOwnProperty("index_start")) {
+    cmd.push(`--index_start=${args.index_start}`);
+  }
+
+  if (args.hasOwnProperty("index_end")) {
+    cmd.push(`--index_end=${args.index_end}`);
+  }
+
+  const process = Deno.run({cmd});
 
   process.status().then(({ code }) => {
     return code;

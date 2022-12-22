@@ -64,7 +64,7 @@ const args = Object.assign(
     return acc;
   }, {}),
 );
-    
+  
 
 const scraper = new Scraper(args);
 

@@ -138,8 +138,6 @@ function section_run({ executable, browser, headless }: {
     // const rawError = await process.stderrOutput();
     // console.error(new TextDecoder().decode(rawError))
   });
-
-  process.close();
 }
 
 function display_options(options: any[]) {

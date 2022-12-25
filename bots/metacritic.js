@@ -87,6 +87,8 @@ await scraper.run({
   wait: 3000,
 });
 
+await scraper.close();
+
 async function callableCategories(
   page,
   browser,

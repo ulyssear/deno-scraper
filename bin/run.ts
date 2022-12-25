@@ -71,7 +71,7 @@ function section_browsers({ executable }: {
 
   if (!args.hasOwnProperty("browser")) {
     choice = create_choice(options_browsers);
-    execute_choice(options_browsers, choice_browser);
+    execute_choice(options_browsers, choice);
   }
 
   section_headless({
@@ -117,12 +117,12 @@ function section_run({ executable, browser, headless }: {
     `--headless=${headless}`,
   ];
 
-  if (args.hasOwnProperty("index_start")) {
-    cmd.push(`--index_start=${args.index_start}`);
+  if (args.hasOwnProperty("start")) {
+    cmd.push(`--start=${args.start}`);
   }
 
-  if (args.hasOwnProperty("index_end")) {
-    cmd.push(`--index_end=${args.index_end}`);
+  if (args.hasOwnProperty("end")) {
+    cmd.push(`--end=${args.end}`);
   }
 
   const process = Deno.run({cmd});
@@ -138,6 +138,8 @@ function section_run({ executable, browser, headless }: {
     // const rawError = await process.stderrOutput();
     // console.error(new TextDecoder().decode(rawError))
   });
+
+  process.close();
 }
 
 function display_options(options: any[]) {

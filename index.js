@@ -36,7 +36,6 @@ class EXECUTABLES_DICT {
 }
 
 let request_index = -1;
-let request_index_start, request_index_end;
 
 class ScraperInterface {
   bot_name;
@@ -47,6 +46,8 @@ class ScraperInterface {
   os;
   executable;
   headless;
+  start;
+  end;
 
   instance;
 
@@ -62,8 +63,8 @@ class ScraperInterface {
     os = OS,
     executable = "chrome",
     headless = "true",
-    index_start = 0,
-    index_end = -1,
+    start = 0,
+    end = -1,
   }) {
     this.bot_name = bot_name;
     this.date = date;
@@ -71,8 +72,8 @@ class ScraperInterface {
     this.os = os;
     this.executable = executable;
     this.headless = headless === "true";
-    this.request_index_start = index_start;
-    this.request_index_end = index_end;
+    this.request_index_start = start;
+    this.request_index_end = end;
 
     HEADLESS = this.headless;
     ROOT_PATH = this.root_path;
@@ -131,7 +132,20 @@ class ScraperInterface {
   }
 
   addTask(task) {
+    request_index++;
+    if (this.request_index_end !== -1) {
+      if (request_index >= this.request_index_end) {
+        return;
+      }
+    }
+    if (request_index < this.request_index_start) {
+      return;
+    }
     return this.instance.addTask(task);
+  }
+
+  close() {
+    return this.instance.close();
   }
 }
 
@@ -296,8 +310,6 @@ class Scraper {
     os = OS,
     executable = "chrome",
     headless = true,
-    request_index_start = 0,
-    request_index_end = -1,
   }) {
     this.bot_name = bot_name;
     this.date = date;
@@ -307,8 +319,6 @@ class Scraper {
     this.os = os;
     this.executable = executable;
     this.headless = headless;
-    this.request_index_start = request_index_start;
-    this.request_index_end = request_index_end;
 
     this.browser_interface = new BrowserInterface();
   }
@@ -331,7 +341,6 @@ class Scraper {
    * });
    */
   addTask(task) {
-    request_index++;
     
     if (typeof task === "function") {
       this.tasks.push(task);
@@ -355,10 +364,6 @@ class Scraper {
       _task.index = request_index;
       return _task.run.bind(_task);
     };
-
-    if (request_index < this.request_index_start || request_index > this.request_index_end) {
-      return this;
-    }
 
     this.tasks.push(final_callable(_task));
 
@@ -431,6 +436,10 @@ class Scraper {
 
     return this;
   }
+  
+  async close() {
+    await this.browser_interface.close();
+  }
 }
 
 class Task {
@@ -483,7 +492,7 @@ class Task {
       url: this.url,
     });
 
-    if (this.url && this.index >= request_index_start && this.index <= (request_index_end > 0 ? request_index_end : request_index_start + 100000)) {
+    if (this.url) {
       const page = await this.browser_interface.openPage(this.url);
       try {
         data = await this.callable(page, this.browser_interface, this.params);

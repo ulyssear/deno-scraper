@@ -379,5 +379,7 @@ async function callableHome(page, browser) {
     wait: 1500,
   });
 
+  await scraper.close();
+
   return sections;
 }

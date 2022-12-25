@@ -47,8 +47,8 @@ jobs:
 
       - name: Run script
         run: |
-          chmod +x ./bin/run
-          ./bin/run --no-interaction --browser="chrome" --headless="true" --executable="retroachievements"
+          chmod +x ./bin/actions
+          ./bin/actions --browser="chrome" --headless="true" --executable="retroachievements"
 
       - name: Commit
         run: |

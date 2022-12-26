@@ -44,7 +44,6 @@ jobs:
           # fi
 
       - name: Create branch
-        if: steps.check_branch.outputs.branch_exists == 'false'
         run: |
           git config --local user.email "noreply@arnaud.tech"
           git config --local user.name "Github Actions"

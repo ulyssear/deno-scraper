@@ -32,26 +32,29 @@ jobs:
           ./bin/actions --browser="chrome" --headless="true" --executable="metacritic"
 
       - name: Check if branch exists
+        id: check_branch
         run: |
-          git ls-remote --heads origin data/metacritic 2>&1
+          git ls-remote --heads origin data/metacritic > /dev/null 2>&1
           if [ $? -eq 0 ]; then
             echo "::set-output name=branch_exists::true"
           else
             echo "::set-output name=branch_exists::false"
           fi
 
+      - name: '[DEBUG] echo branch_exists'
+        if: steps.check_branch.outputs.branch_exists == 'true'
+        run: |
+          echo "branch_exists: ${{ steps.check_branch.outputs.branch_exists }}"
+
       - name: Create branch
         run: |
-          if [ "${{ steps.check_branch.outputs.branch_exists }}" = "false" ]; then
-            git checkout -b data/metacritic
-          fi
+          git checkout -b data/metacritic
           git config --local user.email "noreply@arnaud.tech"
           git config --local user.name "Github Actions"
           git ls-files | xargs git rm --cached -r --ignore-unmatch --quiet --force 2>/dev/null
           git push origin data/metacritic
 
       - name: Checkout branch
-        # if: steps.check_branch.outputs.branch_exists == 'true'
         run: |
           git checkout data/metacritic
           git pull origin data/metacritic
@@ -62,5 +65,4 @@ jobs:
           git commit -m "Update data/metacritic"
 
       - name: Push
-        if: steps.check_branch.outputs.branch_exists == 'true'
         run: git push --force origin data/metacritic

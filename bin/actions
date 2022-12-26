@@ -44,7 +44,7 @@ do
     
     if [ $command_time -lt 30 ]
     then
-        echo "Command time is less than 30 seconds, sleeping for 60 seconds"
+        echo "Command time is less than 30 seconds, stopping"
         break
     fi
 

@@ -11,7 +11,7 @@ chmod +x bin/run
 
 incrementer=100
 start=0
-end=$incrementer
+end=3
 
 if [ -z "$executable" ]
 then

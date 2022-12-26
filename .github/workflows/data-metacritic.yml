@@ -48,6 +48,12 @@ jobs:
           git ls-files | xargs git rm --cached -r --ignore-unmatch --quiet --force 2>/dev/null
           git push origin data/metacritic
 
+      - name: Checkout branch
+        if: steps.check_branch.outputs.branch_exists == 'true'
+        run: |
+          git checkout data/metacritic
+          git pull origin data/metacritic
+
       - name: Commit
         run: |
           git add data

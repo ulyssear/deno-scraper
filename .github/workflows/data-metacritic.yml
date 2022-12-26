@@ -33,7 +33,7 @@ jobs:
 
       - name: Check if branch exists
         run: |
-          git ls-remote --heads origin data/metacritic > /dev/null 2>&1
+          git ls-remote --heads origin data/metacritic 2>&1
           if [ $? -eq 0 ]; then
             echo "::set-output name=branch_exists::true"
           else

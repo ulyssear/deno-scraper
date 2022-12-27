@@ -533,8 +533,8 @@ class Task {
 
       const directory = path.split("/").slice(0, -1).join("/");
 
-      await fs.mkdirSync(directory, { recursive: true });
-      await fs.writeFileSync(
+      fs.mkdirSync(directory, { recursive: true });
+      fs.writeFileSync(
         path,
         JSON.stringify({
           bot_name: this.bot_name,
@@ -543,6 +543,10 @@ class Task {
           data,
         }),
       );
+      
+      while (!fs.existsSync(path)) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
 
       log("Saved to " + path, {
         bot_name: this.bot_name,

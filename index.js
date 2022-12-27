@@ -4,9 +4,7 @@ import fs from "fs";
 import path from "path";
 
 let HEADLESS,
-  EXECUTABLE_PATH,
-  ROOT_PATH,
-  DATA_DIRECTORY;
+  EXECUTABLE_PATH;
 
 const OS = (() => {
   const platform = os.platform();
@@ -110,7 +108,6 @@ class ScraperInterface {
 
   chooseExecutable() {
     if (this.executable_path) {
-      EXECUTABLE_PATH = this.executable_path;
       return this;
     }
 
@@ -126,7 +123,6 @@ class ScraperInterface {
     }
 
     this.executable_path = executable_path;
-    EXECUTABLE_PATH = this.executable_path;
 
     return this;
   }
@@ -152,16 +148,20 @@ class ScraperInterface {
 class BrowserInterface {
   _browser;
   pages;
+  executable_path;
 
-  constructor() {
+  constructor(
+    executable_path,
+  ) {
     this._browser = null;
     this.pages = [];
+    this.executable_path = executable_path;
   }
 
   async start() {
     this._browser = await puppeteer.launch({
       headless: HEADLESS,
-      executablePath: EXECUTABLE_PATH,
+      executablePath: this.executable_path,
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
@@ -320,7 +320,9 @@ class Scraper {
     this.executable = executable;
     this.headless = headless;
 
-    this.browser_interface = new BrowserInterface();
+    this.browser_interface = new BrowserInterface({
+      executable_path: executable_path,
+    });
   }
 
   /**

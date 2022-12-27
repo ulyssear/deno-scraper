@@ -31,9 +31,6 @@ fi
 while true
 do
     start_command_time=$(date +%s)
-    echo "Start: $start"
-    echo "End: $end"
-    echo "Incrementer: $incrementer"
     echo "Running command: ./bin/run --no-interaction --browser=$browser --headless=$headless --executable=$executable --start=$start --end=$end"
     ./bin/run --no-interaction --browser=$browser --headless=$headless --executable=$executable --start=$start --end=$end
     start=$((start+incrementer))

@@ -48,7 +48,7 @@ jobs:
       - name: Remove branch
         if: steps.check_branch.outputs.branch_exists == 'true'
         run: |
-          git branch -D data/metacritic
+          git push origin --delete data/metacritic
 
       - name: Create branch
         # if: steps.check_branch.outputs.branch_exists == 'false'

@@ -3,9 +3,6 @@ import puppeteer from "puppeteer";
 import fs from "fs";
 import path from "path";
 
-let HEADLESS,
-  EXECUTABLE_PATH;
-
 const OS = (() => {
   const platform = os.platform();
   const platforms = {
@@ -74,8 +71,6 @@ class ScraperInterface {
     this.headless = headless === "true";
     this.request_index_start = start;
     this.request_index_end = end;
-
-    HEADLESS = this.headless;
 
     const scraper = new Scraper({
       bot_name,
@@ -149,18 +144,21 @@ class BrowserInterface {
   _browser;
   pages;
   executable_path;
+  headless;
 
   constructor(
     executable_path,
+    headless,
   ) {
     this._browser = null;
     this.pages = [];
     this.executable_path = executable_path;
+    this.headless = headless;
   }
 
   async start() {
     this._browser = await puppeteer.launch({
-      headless: HEADLESS,
+      headless: this.headless,
       executablePath: this.executable_path,
       args: [
         "--no-sandbox",
@@ -322,6 +320,7 @@ class Scraper {
 
     this.browser_interface = new BrowserInterface({
       executable_path: executable_path,
+      headless: headless,
     });
   }
 

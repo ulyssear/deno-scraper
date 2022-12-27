@@ -30,49 +30,37 @@ jobs:
         run: |
           chmod +x ./bin/actions
           ./bin/actions --browser="chrome" --headless="true" --executable="metacritic"
-          # check if branch exists
-          branch_exists=$(git ls-remote --heads origin data/metacritic > /dev/null 2>&1; echo $?)
-          # create/checkout branch
-          if [ $branch_exists -eq 0 ]; then
-            git checkout -b data/metacritic
-            git config --local user.email "noreply@arnaud.tech"
-            git config --local user.name "Github Actions"
-            git ls-files | xargs git rm --cached -r --ignore-unmatch --quiet --force 2>/dev/null
-            git push -f origin data/metacritic
+
+      - name: Check if branch exists
+        id: check_branch
+        run: |
+          git ls-remote --heads origin data/metacritic 2>&1
+          if [ $? -eq 0 ]; then
+            echo "::set-output name=branch_exists::true"
           else
-            git checkout data/metacritic
-            git pull origin data/metacritic
+            echo "::set-output name=branch_exists::false"
           fi
-          # commit/push
-          git add data
-          git commit -m "Update data/metacritic"
+
+      - name: '[DEBUG] echo branch_exists'
+        run: |
+          echo "branch_exists: ${{ steps.check_branch.outputs.branch_exists }}"
+
+      - name: Remove branch
+        if: steps.check_branch.outputs.branch_exists == 'true'
+        run: |
+          git branch -D data/metacritic
+
+      - name: Create branch
+        # if: steps.check_branch.outputs.branch_exists == 'false'
+        run: |
+          git checkout -b data/metacritic
+          git config --local user.email "noreply@arnaud.tech"
+          git config --local user.name "Github Actions"
+          git ls-files | xargs git rm --cached -r --ignore-unmatch --quiet --force 2>/dev/null
           git push origin data/metacritic
 
-
-      # - name: Check if branch exists
-      #   id: check_branch
-      #   run: |
-      #     git ls-remote --heads origin data/metacritic > /dev/null 2>&1
-      #     if [ $? -eq 0 ]; then
-      #       echo "::set-output name=branch_exists::true"
-      #     else
-      #       echo "::set-output name=branch_exists::false"
-      #     fi
-
-      # - name: '[DEBUG] echo branch_exists'
-      #   if: steps.check_branch.outputs.branch_exists == 'true'
-      #   run: |
-      #     echo "branch_exists: ${{ steps.check_branch.outputs.branch_exists }}"
-
-      # - name: Create branch
-      #   run: |
-      #     git checkout -b data/metacritic
-      #     git config --local user.email "noreply@arnaud.tech"
-      #     git config --local user.name "Github Actions"
-      #     git ls-files | xargs git rm --cached -r --ignore-unmatch --quiet --force 2>/dev/null
-      #     git push origin data/metacritic
-
       # - name: Checkout branch
+      #   if: steps.check_branch.outputs.branch_exists == 'true'
       #   run: |
       #     git checkout data/metacritic
       #     git pull origin data/metacritic
@@ -84,3 +72,10 @@ jobs:
 
       # - name: Push
       #   run: git push --force origin data/metacritic
+
+      - name: Create artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: data-metacritic
+          path: data/metacritic
+          retention-days: 31

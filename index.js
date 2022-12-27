@@ -1,6 +1,7 @@
 import os from "os";
 import puppeteer from "puppeteer";
 import fs from "fs";
+import path from "path";
 
 let HEADLESS,
   EXECUTABLE_PATH,
@@ -57,10 +58,11 @@ class ScraperInterface {
       const d = new Date();
       return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
     })(),
-    root_path = ".",
+    root_path = path.resolve('.'),
     data_directory = "data",
     executable_path = "",
-    os = OS,
+    // get os name "windows", "linux", "macos" from os module
+    os: _os = OS,
     executable = "chrome",
     headless = "true",
     start = 0,
@@ -69,27 +71,25 @@ class ScraperInterface {
     this.bot_name = bot_name;
     this.date = date;
     this.executable_path = executable_path;
-    this.os = os;
+    this.os = _os;
     this.executable = executable;
     this.headless = headless === "true";
     this.request_index_start = start;
     this.request_index_end = end;
 
     HEADLESS = this.headless;
-    ROOT_PATH = this.root_path;
-    DATA_DIRECTORY = this.data_directory;
 
     const scraper = new Scraper({
-      bot_name: this.bot_name,
-      date: this.date,
-      root_path: this.root_path,
-      data_directory: this.data_directory,
-      executable_path: this.executable_path,
-      os: this.os,
-      executable: this.executable,
-      headless: this.headless,
-      request_index_start: this.request_index_start,
-      request_index_end: this.request_index_end
+      bot_name,
+      date,
+      root_path,
+      data_directory,
+      executable_path,
+      os: _os,
+      executable,
+      headless,
+      request_index_start: start,
+      request_index_end: end,
     });
 
     this.instance = scraper;
@@ -304,12 +304,12 @@ class Scraper {
   constructor({
     bot_name,
     date = new Date().toISOString().split("T")[0],
-    root_path = ".",
-    data_directory = "data",
-    executable_path = "",
-    os = OS,
-    executable = "chrome",
-    headless = true,
+    root_path,
+    data_directory,
+    executable_path,
+    os,
+    executable,
+    headless,
   }) {
     this.bot_name = bot_name;
     this.date = date;
@@ -358,6 +358,8 @@ class Scraper {
       browser_interface: this.browser_interface,
       params,
       save_file,
+      root_path: this.root_path,
+      data_directory: this.data_directory,
     });
 
     const final_callable = (_task) => {
@@ -464,6 +466,8 @@ class Task {
     params = {},
     save_file = true,
     index = -1,
+    root_path,
+    data_directory,
   }) {
     this.bot_name = bot_name;
     this.date = date;
@@ -473,6 +477,8 @@ class Task {
     this.params = params;
     this.save_file = save_file;
     this.index = index;
+    this.root_path = root_path;
+    this.data_directory = data_directory;
 
     if (!this.file.match(/\.json|\.txt|\.xml|\.csv$/)) {
       this.file += ".json";
@@ -523,7 +529,7 @@ class Task {
   async saveData(data) {
     if (this.save_file) {
       const path =
-        `${ROOT_PATH}/${DATA_DIRECTORY}/${this.bot_name}/${this.date}/${this.file}`;
+        `${this.root_path}/${this.data_directory}/${this.bot_name}/${this.date}/${this.file}`;
 
       const directory = path.split("/").slice(0, -1).join("/");
 
@@ -537,6 +543,12 @@ class Task {
           data,
         }),
       );
+
+      log("Saved to " + path, {
+        bot_name: this.bot_name,
+        file: this.file,
+        url: this.url,
+      });
     }
 
     return this;

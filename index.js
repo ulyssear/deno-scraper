@@ -502,12 +502,12 @@ class Task {
       const page = await this.browser_interface.openPage(this.url);
       try {
         data = await this.callable(page, this.browser_interface, this.params);
-        this.saveData(data);
         log("Saving data...", {
           bot_name: this.bot_name,
           file: this.file,
           url: this.url,
         });
+        await this.saveData(data);
       } catch (err) {
         error(err, {
           bot_name: this.bot_name,

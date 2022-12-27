@@ -530,6 +530,10 @@ class Task {
     if (this.save_file) {
       const path =
         `${this.root_path}/${this.data_directory}/${this.bot_name}/${this.date}/${this.file}`;
+      
+      console.log('Debug path', {
+        path
+      });
 
       const directory = path.split("/").slice(0, -1).join("/");
 

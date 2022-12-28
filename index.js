@@ -2,6 +2,7 @@ import os from "os";
 import puppeteer from "puppeteer";
 import fs from "fs";
 import path from "path";
+import {chunk,log,error} from "./helper.js";
 
 const OS = (() => {
   const platform = os.platform();
@@ -56,7 +57,6 @@ class ScraperInterface {
     root_path = path.resolve('.'),
     data_directory = "data",
     executable_path = "",
-    // get os name "windows", "linux", "macos" from os module
     os: _os = OS,
     executable = "chrome",
     headless = "true",
@@ -383,7 +383,7 @@ class Scraper {
     concurrency = Scraper.CHUNK_SIZE,
     wait = 1500,
   } = {}) {
-    const browser = await this.browser_interface.browser();
+    // const browser = await this.browser_interface.browser();
     const tasks = chunk(this.tasks, concurrency);
 
     log(`Running ${this.tasks.length} tasks in ${tasks.length} chunks...`, {
@@ -562,71 +562,6 @@ class Task {
 
     return this;
   }
-}
-
-/**
- * Chunk an array
- * @param arr  - The array to chunk
- * @param size - The size of the chunk
- * @returns - The chunked array
- */
-function chunk(
-  arr,
-  size,
-) {
-  let chunked_arr = [];
-  let index = 0;
-
-  while (index < arr.length) {
-    const chunk = arr.slice(index, size + index);
-    chunked_arr.push(chunk);
-    index += size;
-  }
-
-  return chunked_arr;
-}
-
-function generic_log(
-  message,
-  type = "INFO",
-  {
-    bot_name,
-    file,
-    url,
-  }
-) {
-  const date = new Date().toISOString().replace(/T/, " ").replace(/\..+/, "");
-
-  const string = [];
-  string.push(`[${type}]`);
-  string.push(`[${date}]`);
-  if (bot_name) string.push(`[${bot_name}]`);
-  if (file) string.push(`[${file}]`);
-  if (url) string.push(`[${url}]`);
-  string.push(message);
-  console.log(string.join(" "));
-}
-
-function log(
-  message,
-  {
-    bot_name,
-    file,
-    url,
-  }
-) {
-  generic_log(message, "INFO", { bot_name, file, url });
-}
-
-function error(
-  message,
-  {
-    bot_name,
-    file,
-    url,
-  }
-) {
-  generic_log(message, "ERROR", { bot_name, file, url });
 }
 
 export default ScraperInterface;

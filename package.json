@@ -1,7 +1,7 @@
 {
-  "name": "deno-scraper",
-  "version": "1.0.0",
-  "description": "From the root directory, run the following command :",
+  "name": "@ulyssear/scraper",
+  "version": "0.0.1",
+  "description": "Simple scraper using Puppeteer",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ulyssear/deno-scraper.git"
+    "url": "git+https://github.com/ulyssear/scraper.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ulyssear/deno-scraper/issues"
+    "url": "https://github.com/ulyssear/scraper/issues"
   },
-  "homepage": "https://github.com/ulyssear/deno-scraper#readme",
+  "homepage": "https://github.com/ulyssear/scraper#readme",
   "dependencies": {
     "puppeteer": "^19.4.1"
   }

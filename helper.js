@@ -49,3 +49,68 @@ export async function waitForSelector(element, selector) {
     }
   }
 }
+
+/**
+ * Chunk an array
+ * @param arr  - The array to chunk
+ * @param size - The size of the chunk
+ * @returns - The chunked array
+ */
+export function chunk(
+  arr,
+  size,
+) {
+  let chunked_arr = [];
+  let index = 0;
+
+  while (index < arr.length) {
+    const chunk = arr.slice(index, size + index);
+    chunked_arr.push(chunk);
+    index += size;
+  }
+
+  return chunked_arr;
+}
+
+export function generic_log(
+  message,
+  type = "INFO",
+  {
+    bot_name,
+    file,
+    url,
+  }
+) {
+  const date = new Date().toISOString().replace(/T/, " ").replace(/\..+/, "");
+
+  const string = [];
+  string.push(`[${type}]`);
+  string.push(`[${date}]`);
+  if (bot_name) string.push(`[${bot_name}]`);
+  if (file) string.push(`[${file}]`);
+  if (url) string.push(`[${url}]`);
+  string.push(message);
+  console.log(string.join(" "));
+}
+
+export function log(
+  message,
+  {
+    bot_name,
+    file,
+    url,
+  }
+) {
+  generic_log(message, "INFO", { bot_name, file, url });
+}
+
+export function error(
+  message,
+  {
+    bot_name,
+    file,
+    url,
+  }
+) {
+  generic_log(message, "ERROR", { bot_name, file, url });
+}

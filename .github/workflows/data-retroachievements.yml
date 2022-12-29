@@ -2,8 +2,8 @@ name: data-retroachievements
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 0 1 * *' # Every first day of the month
+  # schedule:
+  #   - cron: '0 0 1 * *' # Every first day of the month
 
 jobs:
   data-retroachievements:
@@ -50,11 +50,11 @@ jobs:
           chmod +x ./bin/actions
           ./bin/actions --browser="chrome" --headless="true" --executable="retroachievements"
 
-      - name: Commit
-        run: |
-          git add data
-          git commit -m "Update data/retroachievements"
+      # - name: Commit
+      #   run: |
+      #     git add data
+      #     git commit -m "Update data/retroachievements"
 
-      - name: Push
-        if: steps.check_branch.outputs.branch_exists == 'true'
-        run: git push --force origin data/retroachievements
+      # - name: Push
+      #   if: steps.check_branch.outputs.branch_exists == 'true'
+      #   run: git push --force origin data/retroachievements

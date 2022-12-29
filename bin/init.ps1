@@ -1,0 +1,3 @@
+$file = "./node_modules/puppeteer-core/lib/esm/puppeteer/node/BrowserRunner.js"
+$regex = [Regex]::Escape('this.proc = childProcess.spawn(__classPrivateFieldGet(this, _BrowserRunner_executablePath, "f"), __classPrivateFieldGet(this, _BrowserRunner_processArguments, "f"), {')
+(Get-Content $file) -replace $regex, 'this.proc = childProcess.spawn(__classPrivateFieldGet(this, _BrowserRunner_executablePath, "f")?.executable_path, __classPrivateFieldGet(this, _BrowserRunner_processArguments, "f"), {' | Set-Content $file

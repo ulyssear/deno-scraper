@@ -28,6 +28,8 @@ then
     headless="true"
 fi
 
+./bin/init
+
 while true
 do
     start_command_time=$(date +%s)

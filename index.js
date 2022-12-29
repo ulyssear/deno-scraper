@@ -33,6 +33,8 @@ class EXECUTABLES_DICT {
 }
 
 let request_index = -1;
+let total_tasks = 0;
+let total_done = 0;
 
 class ScraperInterface {
   bot_name;
@@ -369,6 +371,8 @@ class Scraper {
       return _task.run.bind(_task);
     };
 
+    total_tasks += 1;
+
     this.tasks.push(final_callable(_task));
 
     return this;
@@ -519,7 +523,9 @@ class Task {
       }
     }
 
-    log("Done!", {
+    total_done += 1;
+
+    log(`Done! (${Math.floor(total_done/total_tasks * 100)}% ${total_done}/${total_tasks})`, {
       bot_name: this.bot_name,
       file: this.file,
       url: this.url,

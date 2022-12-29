@@ -72,12 +72,14 @@ class ScraperInterface {
     this.request_index_start = start;
     this.request_index_end = end;
 
+    this.chooseExecutable();
+
     const scraper = new Scraper({
       bot_name,
       date,
       root_path,
       data_directory,
-      executable_path,
+      executable_path: this.executable_path,
       os: _os,
       executable,
       headless,
@@ -93,7 +95,6 @@ class ScraperInterface {
     concurrency = Scraper.CHUNK_SIZE,
     wait = 1500,
   }) {
-    this.chooseExecutable();
     return this.instance.run({
       mode,
       concurrency,
@@ -319,8 +320,8 @@ class Scraper {
     this.headless = headless;
 
     this.browser_interface = new BrowserInterface({
-      executable_path: executable_path,
-      headless: headless,
+      executable_path,
+      headless,
     });
   }
 
@@ -531,11 +532,7 @@ class Task {
     if (this.save_file) {
       const path =
         `${this.root_path}/${this.data_directory}/${this.bot_name}/${this.date}/${this.file}`;
-      
-      console.log('Debug path', {
-        path
-      });
-
+    
       const directory = path.split("/").slice(0, -1).join("/");
 
       fs.mkdirSync(directory, { recursive: true });
@@ -553,7 +550,13 @@ class Task {
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
-      log("Saved to " + path, {
+      let trunc_path = path;
+
+      if (trunc_path.length > 128) {
+        trunc_path = '...' + trunc_path.slice(-128);
+      }
+
+      log("Saved to \n" + trunc_path, {
         bot_name: this.bot_name,
         file: this.file,
         url: this.url,

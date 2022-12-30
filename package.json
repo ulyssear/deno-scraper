@@ -5,19 +5,23 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "rome format --write --indent-style tab --line-width 160 --quote-style single index.js helper.js",
+    "lint": "rome check --apply-suggested --indent-style tab --line-width 160 --quote-style single index.js helper.js",
+    "build": "npm run format && npm run lint"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ulyssear/scraper.git"
   },
   "author": "Ulysse ARNAUD",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ulyssear/scraper/issues"
   },
   "homepage": "https://github.com/ulyssear/scraper#readme",
   "dependencies": {
-    "puppeteer": "^19.4.1"
+    "puppeteer": "^19.4.1",
+    "rome": "^11.0.0"
   }
 }

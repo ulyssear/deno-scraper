@@ -1,6 +1,0 @@
-#!/usr/bin/sh
-
-file="./node_modules/puppeteer-core/lib/esm/puppeteer/node/BrowserRunner.js"
-regex="this.proc = childProcess.spawn(__classPrivateFieldGet(this, _BrowserRunner_executablePath, \"f\"), __classPrivateFieldGet(this, _BrowserRunner_processArguments, \"f\"), {"
-replacement="this.proc = childProcess.spawn(__classPrivateFieldGet(this, _BrowserRunner_executablePath, \"f\")?.executable_path, __classPrivateFieldGet(this, _BrowserRunner_processArguments, \"f\"), {"
-sed -i "s/$regex/$replacement/g" $file

@@ -73,3 +73,14 @@ export function log(message, { bot_name, file, url }) {
 export function error(message, { bot_name, file, url }) {
 	generic_log(message, 'ERROR', { bot_name, file, url });
 }
+
+export default {
+	$,
+	$$,
+	$eval,
+	$$eval,
+	waitForSelector,
+	chunk,
+	log,
+	error,
+};

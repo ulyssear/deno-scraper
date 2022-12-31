@@ -2,7 +2,9 @@ import os from 'os';
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
-import { chunk, log, error } from './helper.js';
+import helper from './helper.js';
+
+const { $, $$, $eval, $$eval, waitForSelector } = helper;
 
 const OS = (() => {
 	const platform = os.platform();
@@ -524,4 +526,7 @@ class Task {
 	}
 }
 
-export default ScraperInterface;
+export default {
+	Scraper: ScraperInterface,
+	helper,
+};

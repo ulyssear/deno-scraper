@@ -1,35 +1,35 @@
-import os from "os";
-import puppeteer from "puppeteer";
-import fs from "fs";
-import path from "path";
-import {chunk,log,error} from "./helper.js";
+import os from 'os';
+import puppeteer from 'puppeteer';
+import fs from 'fs';
+import path from 'path';
+import { chunk, log, error } from './helper.js';
 
 const OS = (() => {
-  const platform = os.platform();
-  const platforms = {
-    linux: "linux",
-    win32: "windows",
-    darwin: "macos",
-  };
-  return platforms[platform] || "linux";
+	const platform = os.platform();
+	const platforms = {
+		linux: 'linux',
+		win32: 'windows',
+		darwin: 'macos',
+	};
+	return platforms[platform] || 'linux';
 })();
 
 class EXECUTABLES_DICT {
-  static LINUX = {
-    FIREFOX: "/usr/bin/firefox",
-    CHROME: "/usr/bin/chromium-browser",
-    EDGE: "/usr/bin/msedge",
-  };
-  static WINDOWS = {
-    FIREFOX: "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
-    CHROME: "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-    EDGE: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-  };
-  static MACOS = {
-    FIREFOX: "/Applications/Firefox.app/Contents/MacOS/firefox",
-    CHROME: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    EDGE: "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-  };
+	static LINUX = {
+		FIREFOX: '/usr/bin/firefox',
+		CHROME: '/usr/bin/chromium-browser',
+		EDGE: '/usr/bin/msedge',
+	};
+	static WINDOWS = {
+		FIREFOX: 'C:\\Program Files\\Mozilla Firefox\\firefox.exe',
+		CHROME: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+		EDGE: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+	};
+	static MACOS = {
+		FIREFOX: '/Applications/Firefox.app/Contents/MacOS/firefox',
+		CHROME: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+		EDGE: '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+	};
 }
 
 let request_index = -1;
@@ -37,540 +37,491 @@ let total_tasks = 0;
 let total_done = 0;
 
 class ScraperInterface {
-  bot_name;
-  date;
-  root_path;
-  data_directory;
-  executable_path;
-  os;
-  executable;
-  headless;
-  start;
-  end;
+	bot_name;
+	date;
+	root_path;
+	data_directory;
+	executable_path;
+	os;
+	executable;
+	headless;
+	start;
+	end;
 
-  instance;
+	instance;
 
-  constructor({
-    bot_name,
-    date = (() => {
-      const d = new Date();
-      return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-    })(),
-    root_path = path.resolve('.'),
-    data_directory = "data",
-    executable_path = "",
-    os: _os = OS,
-    executable = "chrome",
-    headless = "true",
-    start = 0,
-    end = -1,
-  }) {
-    this.bot_name = bot_name;
-    this.date = date;
-    this.executable_path = executable_path;
-    this.os = _os;
-    this.executable = executable;
-    this.headless = headless === "true";
-    this.request_index_start = start;
-    this.request_index_end = end;
+	constructor({
+		bot_name,
+		date = (() => {
+			const d = new Date();
+			return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+		})(),
+		root_path = path.resolve('.'),
+		data_directory = 'data',
+		executable_path = '',
+		os: _os = OS,
+		executable = 'chrome',
+		headless = 'true',
+		start = 0,
+		end = -1,
+	}) {
+		this.bot_name = bot_name;
+		this.date = date;
+		this.executable_path = executable_path;
+		this.os = _os;
+		this.executable = executable;
+		this.headless = headless === 'true';
+		this.request_index_start = start;
+		this.request_index_end = end;
 
-    this.chooseExecutable();
+		this.chooseExecutable();
 
-    const scraper = new Scraper({
-      bot_name,
-      date,
-      root_path,
-      data_directory,
-      executable_path: this.executable_path,
-      os: _os,
-      executable,
-      headless,
-      request_index_start: start,
-      request_index_end: end,
-    });
+		const scraper = new Scraper({
+			bot_name,
+			date,
+			root_path,
+			data_directory,
+			executable_path: this.executable_path,
+			os: _os,
+			executable,
+			headless,
+			request_index_start: start,
+			request_index_end: end,
+		});
 
-    this.instance = scraper;
-  }
+		this.instance = scraper;
+	}
 
-  async run({
-    mode = "parallel",
-    concurrency = Scraper.CHUNK_SIZE,
-    wait = 1500,
-  }) {
-    return this.instance.run({
-      mode,
-      concurrency,
-      wait,
-    });
-  }
+	async run({ mode = 'parallel', concurrency = Scraper.CHUNK_SIZE, wait = 1500 }) {
+		return this.instance.run({
+			mode,
+			concurrency,
+			wait,
+		});
+	}
 
-  chooseExecutable() {
-    if (this.executable_path) {
-      return this;
-    }
+	chooseExecutable() {
+		if (this.executable_path) {
+			return this;
+		}
 
-    const executable_path =
-      (EXECUTABLES_DICT)[this.os.toUpperCase()][
-        this.executable.toUpperCase()
-      ] || "";
+		const executable_path = EXECUTABLES_DICT[this.os.toUpperCase()][this.executable.toUpperCase()] || '';
 
-    if (!executable_path) {
-      throw new Error(
-        `executable_path is not provided and could not be retrieved from os and executable.\nDebug : os: ${this.os} - executable: ${this.executable}`,
-      );
-    }
+		if (!executable_path) {
+			throw new Error(
+				`executable_path is not provided and could not be retrieved from os and executable.\nDebug : os: ${this.os} - executable: ${this.executable}`,
+			);
+		}
 
-    this.executable_path = executable_path;
+		this.executable_path = executable_path;
 
-    return this;
-  }
+		return this;
+	}
 
-  addTask(task) {
-    request_index++;
-    if (this.request_index_end !== -1) {
-      if (request_index >= this.request_index_end) {
-        return;
-      }
-    }
-    if (request_index < this.request_index_start) {
-      return;
-    }
-    return this.instance.addTask(task);
-  }
+	addTask(task) {
+		request_index++;
+		if (this.request_index_end !== -1) {
+			if (request_index >= this.request_index_end) {
+				return;
+			}
+		}
+		if (request_index < this.request_index_start) {
+			return;
+		}
+		return this.instance.addTask(task);
+	}
 
-  close() {
-    return this.instance.close();
-  }
+	close() {
+		return this.instance.close();
+	}
 }
 
 class BrowserInterface {
-  _browser;
-  pages;
-  executable_path;
-  headless;
+	_browser;
+	pages;
+	executable_path;
+	headless;
 
-  constructor(
-    executable_path,
-    headless,
-  ) {
-    this._browser = null;
-    this.pages = [];
-    this.executable_path = executable_path;
-    this.headless = headless;
-  }
+	constructor(executable_path, headless) {
+		this._browser = null;
+		this.pages = [];
+		this.executable_path = executable_path;
+		this.headless = headless;
+	}
 
-  async start() {
-    this._browser = await puppeteer.launch({
-      headless: this.headless,
-      executablePath: this.executable_path,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-accelerated-2d-canvas",
-        "--no-first-run",
-        "--no-zygote",
-        "--single-process",
-        "--disable-gpu",
-      ],
-    });
-  }
+	async start() {
+		this._browser = await puppeteer.launch({
+			headless: this.headless,
+			executablePath: this.executable_path,
+			args: [
+				'--no-sandbox',
+				'--disable-setuid-sandbox',
+				'--disable-dev-shm-usage',
+				'--disable-accelerated-2d-canvas',
+				'--no-first-run',
+				'--no-zygote',
+				'--single-process',
+				'--disable-gpu',
+			],
+		});
+	}
 
-  async stop() {
-    const browser = await this.browser();
-    await browser.close();
-  }
+	async stop() {
+		const browser = await this.browser();
+		await browser.close();
+	}
 
-  async newPage() {
-    const browser = await this.browser();
-    const page = await browser.newPage();
-    this.pages.push(page);
-    return page;
-  }
+	async newPage() {
+		const browser = await this.browser();
+		const page = await browser.newPage();
+		this.pages.push(page);
+		return page;
+	}
 
-  async openPage(url) {
-    const page = await this.newPage();
-    for (let i = 0; i < 3; i++) {
-      try {
-        await page.goto(url);
-        break;
-      } catch (e) {
-        error(`Error opening page ${url} - ${e}`);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-    }
+	async openPage(url) {
+		const page = await this.newPage();
+		for (let i = 0; i < 3; i++) {
+			try {
+				await page.goto(url);
+				break;
+			} catch (e) {
+				error(`Error opening page ${url} - ${e}`);
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+			}
+		}
 
-    return page;
-  }
+		return page;
+	}
 
-  async closePage(page) {
-    await page.close();
-    this.pages = this.pages.filter((p) => p !== page);
-  }
+	async closePage(page) {
+		await page.close();
+		this.pages = this.pages.filter((p) => p !== page);
+	}
 
-  async closeAllPages() {
-    await Promise.all(this.pages.map((page) => page.close()));
-    this.pages = [];
-  }
+	async closeAllPages() {
+		await Promise.all(this.pages.map((page) => page.close()));
+		this.pages = [];
+	}
 
-  async close() {
-    await this.closeAllPages();
-    await this.stop();
-  }
+	async close() {
+		await this.closeAllPages();
+		await this.stop();
+	}
 
-  async restart() {
-    await this.close();
-    await this.start();
-  }
+	async restart() {
+		await this.close();
+		await this.start();
+	}
 
-  async restartPage(page) {
-    await this.closePage(page);
-    return this.newPage();
-  }
+	async restartPage(page) {
+		await this.closePage(page);
+		return this.newPage();
+	}
 
-  async restartAllPages() {
-    await this.closeAllPages();
-    return Promise.all(
-      Array.from({ length: this.pages.length }).map(() => this.newPage()),
-    );
-  }
+	async restartAllPages() {
+		await this.closeAllPages();
+		return Promise.all(Array.from({ length: this.pages.length }).map(() => this.newPage()));
+	}
 
-  async restartAll() {
-    await this.restartAllPages();
-    await this.restart();
-  }
+	async restartAll() {
+		await this.restartAllPages();
+		await this.restart();
+	}
 
-  async browser() {
-    if (!this._browser) {
-      await this.start();
-    }
+	async browser() {
+		if (!this._browser) {
+			await this.start();
+		}
 
-    return this._browser;
-  }
+		return this._browser;
+	}
 }
 
 class Scraper {
-  /**
-   * The size of the chunk
-   * @type {number}
-   * @static
-   * @readonly
-   * @default 10
-   */
-  static CHUNK_SIZE = 3;
-  static TIMEOUTS = [
-    800,
-    1000,
-    2000,
-    3000,
-    4000,
-    5000,
-    6000,
-    7000,
-    8000,
-    9000,
-    10000,
-  ];
+	/**
+	 * The size of the chunk
+	 * @type {number}
+	 * @static
+	 * @readonly
+	 * @default 10
+	 */
+	static CHUNK_SIZE = 3;
+	static TIMEOUTS = [800, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000];
 
-  tasks = [];
-  bot_name;
-  date;
+	tasks = [];
+	bot_name;
+	date;
 
-  root_path;
-  data_directory;
-  executable_path;
+	root_path;
+	data_directory;
+	executable_path;
 
-  os;
-  executable;
-  headless;
+	os;
+	executable;
+	headless;
 
-  browser_interface;
+	browser_interface;
 
-  /**
-   * Create a new instance of Scraper
-   * @param {string} bot_name - The name of the bot
-   * @param {string} date - The date of the scraping
-   * @param {string} root_path - The root path of the project
-   * @param {string} data_directory - The directory where the data will be stored
-   *
-   * @example
-   * const scraper = new Scraper({
-   *  bot_name: "demo",
-   *  date: "2021-01-01",
-   *  root_path: ".",
-   *  data_directory: "data",
-   * });
-   */
+	/**
+	 * Create a new instance of Scraper
+	 * @param {string} bot_name - The name of the bot
+	 * @param {string} date - The date of the scraping
+	 * @param {string} root_path - The root path of the project
+	 * @param {string} data_directory - The directory where the data will be stored
+	 *
+	 * @example
+	 * const scraper = new Scraper({
+	 *  bot_name: "demo",
+	 *  date: "2021-01-01",
+	 *  root_path: ".",
+	 *  data_directory: "data",
+	 * });
+	 */
 
-  constructor({
-    bot_name,
-    date = new Date().toISOString().split("T")[0],
-    root_path,
-    data_directory,
-    executable_path,
-    os,
-    executable,
-    headless,
-  }) {
-    this.bot_name = bot_name;
-    this.date = date;
-    this.root_path = root_path;
-    this.data_directory = data_directory;
-    this.executable_path = executable_path;
-    this.os = os;
-    this.executable = executable;
-    this.headless = headless;
+	constructor({ bot_name, date = new Date().toISOString().split('T')[0], root_path, data_directory, executable_path, os, executable, headless }) {
+		this.bot_name = bot_name;
+		this.date = date;
+		this.root_path = root_path;
+		this.data_directory = data_directory;
+		this.executable_path = executable_path;
+		this.os = os;
+		this.executable = executable;
+		this.headless = headless;
 
-    this.browser_interface = new BrowserInterface({
-      executable_path,
-      headless,
-    });
-  }
+		this.browser_interface = new BrowserInterface({
+			executable_path,
+			headless,
+		});
+	}
 
-  /**
-   * Add a task to the scraper
-   * @param {any} task - The task to add
-   *
-   * @example
-   * scraper.addTask(async () => {
-   *  console.log("Hello");
-   * });
-   *
-   * scraper.addTask({
-   *  file: "categories",
-   *  url: "https://www.example.com/categories",
-   *  callable: async (page) => {
-   *     console.log("Hello");
-   *  },
-   * });
-   */
-  addTask(task) {
-    
-    if (typeof task === "function") {
-      this.tasks.push(task);
-      return this;
-    }
+	/**
+	 * Add a task to the scraper
+	 * @param {any} task - The task to add
+	 *
+	 * @example
+	 * scraper.addTask(async () => {
+	 *  console.log("Hello");
+	 * });
+	 *
+	 * scraper.addTask({
+	 *  file: "categories",
+	 *  url: "https://www.example.com/categories",
+	 *  callable: async (page) => {
+	 *     console.log("Hello");
+	 *  },
+	 * });
+	 */
+	addTask(task) {
+		if (typeof task === 'function') {
+			this.tasks.push(task);
+			return this;
+		}
 
-    const { file, url, callable, params, save_file } = task;
+		const { file, url, callable, params, save_file } = task;
 
-    const _task = new Task({
-      file,
-      url,
-      callable,
-      bot_name: this.bot_name,
-      date: this.date,
-      browser_interface: this.browser_interface,
-      params,
-      save_file,
-      root_path: this.root_path,
-      data_directory: this.data_directory,
-    });
+		const _task = new Task({
+			file,
+			url,
+			callable,
+			bot_name: this.bot_name,
+			date: this.date,
+			browser_interface: this.browser_interface,
+			params,
+			save_file,
+			root_path: this.root_path,
+			data_directory: this.data_directory,
+		});
 
-    const final_callable = (_task) => {
-      _task.index = request_index;
-      return _task.run.bind(_task);
-    };
+		const final_callable = (_task) => {
+			_task.index = request_index;
+			return _task.run.bind(_task);
+		};
 
-    total_tasks += 1;
+		this.tasks.push(final_callable(_task));
 
-    this.tasks.push(final_callable(_task));
+		return this;
+	}
 
-    return this;
-  }
+	/**
+	 * Run the scraper
+	 * @example
+	 * scraper.run();
+	 */
+	async run({ mode = 'parallel', concurrency = Scraper.CHUNK_SIZE, wait = 1500 } = {}) {
+		// const browser = await this.browser_interface.browser();
+		const tasks = chunk(this.tasks, concurrency);
 
-  /**
-   * Run the scraper
-   * @example
-   * scraper.run();
-   */
-  async run({
-    mode = "parallel",
-    concurrency = Scraper.CHUNK_SIZE,
-    wait = 1500,
-  } = {}) {
-    // const browser = await this.browser_interface.browser();
-    const tasks = chunk(this.tasks, concurrency);
+		total_tasks += tasks.length;
 
-    log(`Running ${this.tasks.length} tasks in ${tasks.length} chunks...`, {
-      bot_name: this.bot_name,
-      file: "",
-      url: "",
-    });
+		log(`Running ${this.tasks.length} tasks in ${tasks.length} chunks...`, {
+			bot_name: this.bot_name,
+			file: '',
+			url: '',
+		});
 
-    for (const _chunk of tasks) {
-      log(`Running chunk of ${_chunk.length} tasks...`, {
-        bot_name: this.bot_name,
-        file: "",
-        url: "",
-      });
-      this.tasks = this.tasks.filter((task) => !_chunk.includes(task));
+		for (const _chunk of tasks) {
+			log(`Running chunk of ${_chunk.length} tasks...`, {
+				bot_name: this.bot_name,
+				file: '',
+				url: '',
+			});
+			this.tasks = this.tasks.filter((task) => !_chunk.includes(task));
 
-      if ("sequential" === mode) {
-        for (const task of _chunk) {
-          await task();
-          log(`Waiting ${wait}ms...`, {
-            bot_name: this.bot_name,
-            file: "",
-            url: "",
-          });
-          await new Promise((resolve) => setTimeout(resolve, wait));
-        }
-      }
+			if ('sequential' === mode) {
+				for (const task of _chunk) {
+					await task();
+					log(`Waiting ${wait}ms...`, {
+						bot_name: this.bot_name,
+						file: '',
+						url: '',
+					});
+					await new Promise((resolve) => setTimeout(resolve, wait));
+				}
+			}
 
-      if ("parallel" === mode) {
-        await Promise.all(_chunk.map(async (task) => {
-          await task()
-        }));
-        log(`Waiting ${wait}ms...`, {
-          bot_name: this.bot_name,
-          file: "",
-          url: "",
-        });
-        await new Promise((resolve) => setTimeout(resolve, wait));
-      }
+			if ('parallel' === mode) {
+				await Promise.all(
+					_chunk.map(async (task) => {
+						await task();
+					}),
+				);
+				log(`Waiting ${wait}ms...`, {
+					bot_name: this.bot_name,
+					file: '',
+					url: '',
+				});
+				await new Promise((resolve) => setTimeout(resolve, wait));
+			}
 
-      log("Done!", {
-        bot_name: this.bot_name,
-        file: "",
-        url: "",
-      });
-    }
+			log('Done!', {
+				bot_name: this.bot_name,
+				file: '',
+				url: '',
+			});
+		}
 
-    log("Done!", {
-      bot_name: this.bot_name,
-      file: "",
-      url: "",
-    });
+		log('Done!', {
+			bot_name: this.bot_name,
+			file: '',
+			url: '',
+		});
 
-    return this;
-  }
-  
-  async close() {
-    await this.browser_interface.close();
-  }
+		return this;
+	}
+
+	async close() {
+		await this.browser_interface.close();
+	}
 }
 
 class Task {
-  bot_name;
-  date;
-  file;
-  url;
-  callable;
-  params;
-  save_file;
-  index;
+	bot_name;
+	date;
+	file;
+	url;
+	callable;
+	params;
+	save_file;
+	index;
 
-  browser_interface;
+	browser_interface;
 
-  constructor({
-    bot_name,
-    date,
-    file,
-    url = "",
-    callable,
-    browser_interface,
-    params = {},
-    save_file = true,
-    index = -1,
-    root_path,
-    data_directory,
-  }) {
-    this.bot_name = bot_name;
-    this.date = date;
-    this.file = file;
-    this.url = url;
-    this.callable = callable;
-    this.params = params;
-    this.save_file = save_file;
-    this.index = index;
-    this.root_path = root_path;
-    this.data_directory = data_directory;
+	constructor({ bot_name, date, file, url = '', callable, browser_interface, params = {}, save_file = true, index = -1, root_path, data_directory }) {
+		this.bot_name = bot_name;
+		this.date = date;
+		this.file = file;
+		this.url = url;
+		this.callable = callable;
+		this.params = params;
+		this.save_file = save_file;
+		this.index = index;
+		this.root_path = root_path;
+		this.data_directory = data_directory;
 
-    if (!this.file.match(/\.json|\.txt|\.xml|\.csv$/)) {
-      this.file += ".json";
-    }
+		if (!this.file.match(/\.json|\.txt|\.xml|\.csv$/)) {
+			this.file += '.json';
+		}
 
-    this.file = this.file.replace(/[*?]/g, "");
+		this.file = this.file.replace(/[*?]/g, '');
 
-    this.browser_interface = browser_interface;
-  }
+		this.browser_interface = browser_interface;
+	}
 
-  async run() {
-    let data;
+	async run() {
+		let data;
 
-    log("Starting...", {
-      bot_name: this.bot_name,
-      file: this.file,
-      url: this.url,
-    });
+		log('Starting...', {
+			bot_name: this.bot_name,
+			file: this.file,
+			url: this.url,
+		});
 
-    if (this.url) {
-      const page = await this.browser_interface.openPage(this.url);
-      try {
-        data = await this.callable(page, this.browser_interface, this.params);
-        log("Saving data...", {
-          bot_name: this.bot_name,
-          file: this.file,
-          url: this.url,
-        });
-        await this.saveData(data);
-      } catch (err) {
-        error(err, {
-          bot_name: this.bot_name,
-          file: this.file,
-          url: this.url,
-        });
-      }
-    }
+		if (this.url) {
+			const page = await this.browser_interface.openPage(this.url);
+			try {
+				data = await this.callable(page, this.browser_interface, this.params);
+				log('Saving data...', {
+					bot_name: this.bot_name,
+					file: this.file,
+					url: this.url,
+				});
+				await this.saveData(data);
+			} catch (err) {
+				error(err, {
+					bot_name: this.bot_name,
+					file: this.file,
+					url: this.url,
+				});
+			}
+		}
 
-    total_done += 1;
+		total_done += 1;
 
-    log(`Done! (${Math.floor(total_done/total_tasks * 100)}% ${total_done}/${total_tasks})`, {
-      bot_name: this.bot_name,
-      file: this.file,
-      url: this.url,
-    });
+		log(`Done! (${Math.floor((total_done / total_tasks) * 100)}% ${total_done}/${total_tasks})`, {
+			bot_name: this.bot_name,
+			file: this.file,
+			url: this.url,
+		});
 
-    return data;
-  }
+		return data;
+	}
 
-  async saveData(data) {
-    if (this.save_file) {
-      const path =
-        `${this.root_path}/${this.data_directory}/${this.bot_name}/${this.date}/${this.file}`;
-    
-      const directory = path.split("/").slice(0, -1).join("/");
+	async saveData(data) {
+		if (this.save_file) {
+			const path = `${this.root_path}/${this.data_directory}/${this.bot_name}/${this.date}/${this.file}`;
 
-      fs.mkdirSync(directory, { recursive: true });
-      fs.writeFileSync(
-        path,
-        JSON.stringify({
-          bot_name: this.bot_name,
-          date: this.date,
-          url: this.url,
-          data,
-        }),
-      );
-      
-      while (!fs.existsSync(path)) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      }
+			const directory = path.split('/').slice(0, -1).join('/');
 
-      let trunc_path = path;
+			fs.mkdirSync(directory, { recursive: true });
+			fs.writeFileSync(
+				path,
+				JSON.stringify({
+					bot_name: this.bot_name,
+					date: this.date,
+					url: this.url,
+					data,
+				}),
+			);
 
-      if (trunc_path.length > 128) {
-        trunc_path = '...' + trunc_path.slice(-128);
-      }
+			while (!fs.existsSync(path)) {
+				await new Promise((resolve) => setTimeout(resolve, 100));
+			}
 
-      log("Saved to \n" + trunc_path, {
-        bot_name: this.bot_name,
-        file: this.file,
-        url: this.url,
-      });
-    }
+			let trunc_path = path;
 
-    return this;
-  }
+			if (trunc_path.length > 128) {
+				trunc_path = `...${trunc_path.slice(-128)}`;
+			}
+
+			log('Saved to \n' + trunc_path, {
+				bot_name: this.bot_name,
+				file: this.file,
+				url: this.url,
+			});
+		}
+
+		return this;
+	}
 }
 
 export default ScraperInterface;

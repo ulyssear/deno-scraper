@@ -1,6 +1,6 @@
 {
   "name": "@ulyssear/scraper",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Simple scraper using Puppeteer",
   "main": "index.js",
   "type": "module",

@@ -528,6 +528,6 @@ class Task {
 
 export default {
 	Scraper: ScraperInterface,
-	helper,
+	ScraperHelper: helper,
 };
 	

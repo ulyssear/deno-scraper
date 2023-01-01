@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import helper from './helper.js';
 
-const { $, $$, $eval, $$eval, waitForSelector } = helper;
+const { $, $$, $eval, $$eval, waitForSelector, chunk } = helper;
 
 const OS = (() => {
 	const platform = os.platform();

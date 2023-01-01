@@ -144,11 +144,11 @@ class BrowserInterface {
 	executable_path;
 	headless;
 
-	constructor(executable_path, headless) {
+	constructor({executable_path, headless}) {
 		this._browser = null;
 		this.pages = [];
 		this.executable_path = executable_path;
-		this.headless = headless;
+		this.headless = headless === 'true';
 	}
 
 	async start() {

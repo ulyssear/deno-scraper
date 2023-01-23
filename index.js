@@ -144,7 +144,7 @@ class BrowserInterface {
 	executable_path;
 	headless;
 
-	constructor({executable_path, headless}) {
+	constructor({ executable_path, headless }) {
 		this._browser = null;
 		this.pages = [];
 		this.executable_path = executable_path;
@@ -475,6 +475,20 @@ class Task {
 					url: this.url,
 				});
 			}
+		} else {
+			try {
+				data = await this.callable(this.browser_interface, this.params);
+				log('Saving data...', {
+					bot_name: this.bot_name,
+					file: this.file,
+				});
+				await this.saveData(data);
+			} catch (err) {
+				error(err, {
+					bot_name: this.bot_name,
+					file: this.file,
+				});
+			}
 		}
 
 		total_done += 1;
@@ -530,4 +544,3 @@ export default {
 	Scraper: ScraperInterface,
 	ScraperHelper: helper,
 };
-	

@@ -66,11 +66,11 @@ export function generic_log(message, type = 'INFO', { bot_name, file, url }) {
 	console.log(string.join(' '));
 }
 
-export function log(message, { bot_name, file, url }) {
+export function log(message, { bot_name = '', file = '', url ='' }) {
 	generic_log(message, 'INFO', { bot_name, file, url });
 }
 
-export function error(message, { bot_name, file, url }) {
+export function error(message, { bot_name = '', file = '', url ='' }) {
 	generic_log(message, 'ERROR', { bot_name, file, url });
 }
 
